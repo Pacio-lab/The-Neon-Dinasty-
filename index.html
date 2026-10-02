@@ -7,625 +7,510 @@
   
   <script src="https://cdn.tailwindcss.com"></script>
   <script src="https://unpkg.com/lucide@latest"></script>
-  <!-- YouTube IFrame Player API -->
   <script src="https://www.youtube.com/iframe_api"></script>
   <link href="https://fonts.googleapis.com/css2?family=Orbitron:wght@400;700;900&family=Rajdhani:wght@500;700&family=Space+Grotesk:wght@400;600&display=swap" rel="stylesheet" />
   
   <style>
-    body { background-color: #050609; color: #e2e8f0; font-family: 'Space Grotesk', sans-serif; }
+    body { background-color: #050609; color: #e2e8f0; font-family: 'Space Grotesk', sans-serif; overflow-x: hidden; }
     .hud-box { position: relative; background: rgba(16, 18, 24, 0.9); border: 1px solid rgba(0, 229, 255, 0.25); backdrop-filter: blur(12px); }
     .hud-box::before { content: ''; position: absolute; top: -1px; left: -1px; width: 8px; height: 8px; border-top: 2px solid #00E5FF; border-left: 2px solid #00E5FF; }
     .hud-box::after { content: ''; position: absolute; bottom: -1px; right: -1px; width: 8px; height: 8px; border-bottom: 2px solid #00E5FF; border-right: 2px solid #00E5FF; }
     .glow-cyan { text-shadow: 0 0 12px rgba(0, 229, 255, 0.6); }
     
-    /* Range Input Custom HUD Styling */
-    input[type=range] {
-      -webkit-appearance: none;
-      background: #101218;
-      border: 1px solid #181C24;
-      height: 6px;
-    }
-    input[type=range]::-webkit-slider-thumb {
-      -webkit-appearance: none;
-      height: 14px;
-      width: 10px;
-      background: #00E5FF;
-      cursor: pointer;
-      border-radius: 0;
-    }
+    input[type=range] { -webkit-appearance: none; background: #101218; border: 1px solid #181C24; height: 6px; }
+    input[type=range]::-webkit-slider-thumb { -webkit-appearance: none; height: 14px; width: 10px; background: #00E5FF; cursor: pointer; border-radius: 0; }
 
-    /* Video Frame Transition */
-    #yt-player-container {
-      transition: filter 0.4s ease-in-out;
-    }
-    #video-tint-overlay {
-      transition: background-color 0.4s ease-in-out, opacity 0.4s ease-in-out;
-    }
+    #yt-player-container { transition: filter 0.4s ease-in-out; }
+    #video-tint-overlay { transition: background-color 0.4s ease-in-out, opacity 0.4s ease-in-out; }
+
+    /* Animazione transizione pagina */
+    .page-view { display: none; animation: fadeIn 0.3s ease-in-out forwards; }
+    .page-view.active { display: block; }
+    @keyframes fadeIn { from { opacity: 0; transform: translateY(6px); } to { opacity: 1; transform: translateY(0); } }
+
+    .district-poly { transition: all 0.3s ease; cursor: pointer; }
+    .district-poly:hover, .district-poly.active { fill-opacity: 0.55; stroke-width: 2.5; filter: drop-shadow(0 0 10px currentColor); }
   </style>
 </head>
-<body class="bg-[#050609] text-slate-200">
+<body class="bg-[#050609] text-slate-200 pb-16 md:pb-0">
 
-  <!-- FLUSSO AUDIO MP3 DI SOTTOFONDO -->
+  <!-- STREAM AUDIO MP3 -->
   <audio id="bg-audio" loop crossorigin="anonymous" preload="auto">
     <source src="https://cdn.pixabay.com/download/audio/2022/03/15/audio_c8c8a73229.mp3?filename=cyberpunk-2099-10701.mp3" type="audio/mpeg">
   </audio>
 
-  <!-- HEADER NETWORK -->
+  <!-- HEADER NETWORK FISSO -->
   <header class="fixed top-0 left-0 right-0 z-50 bg-[#050609]/90 border-b border-slate-800 backdrop-blur-md px-4 py-3 flex items-center justify-between">
-    <div class="flex items-center gap-3">
-      <div class="w-8 h-8 bg-slate-900 border border-cyan-400 flex items-center justify-center font-bold text-cyan-400">ND</div>
+    <div class="flex items-center gap-3 cursor-pointer" onclick="navigateTo('home')">
+      <div class="w-8 h-8 bg-slate-900 border border-cyan-400 flex items-center justify-center font-bold text-cyan-400 font-['Orbitron']">ND</div>
       <span class="font-bold tracking-wider text-white hidden sm:inline font-['Orbitron']">NEON DYNASTY</span>
     </div>
     
-    <div class="flex flex-wrap items-center gap-3">
-      <!-- SELETTORE LINGUA -->
-      <div class="relative">
-        <select id="lang-select" onchange="changeLanguage(this.value)" class="bg-slate-900 border border-slate-700 text-cyan-400 font-mono text-xs px-2 py-1.5 focus:outline-none focus:border-cyan-400 transition-all cursor-pointer">
-          <option value="it">🇮🇹 IT - Italiano</option>
-          <option value="en">🇬🇧 EN - English</option>
-          <option value="de">🇩🇪 DE - Deutsch</option>
-          <option value="fr">🇫🇷 FR - Français</option>
-          <option value="ja">🇯🇵 JA - 日本語</option>
-          <option value="zh">🇨🇳 ZH - 中文</option>
-          <option value="ru">🇷🇺 RU - Русский</option>
-        </select>
-      </div>
+    <!-- NAVIGAZIONE DESKTOP -->
+    <nav class="hidden lg:flex items-center gap-1 font-mono text-xs">
+      <button onclick="navigateTo('home')" class="nav-link px-3 py-1.5 text-slate-300 hover:text-cyan-400" data-page="home" data-i18n="navHome">HOME</button>
+      <button onclick="navigateTo('city')" class="nav-link px-3 py-1.5 text-slate-300 hover:text-cyan-400" data-page="city" data-i18n="navCity">CITTÀ & MAPPA</button>
+      <button onclick="navigateTo('build')" class="nav-link px-3 py-1.5 text-slate-300 hover:text-cyan-400" data-page="build" data-i18n="navBuild">COSTRUISCI</button>
+      <button onclick="navigateTo('tech')" class="nav-link px-3 py-1.5 text-slate-300 hover:text-cyan-400" data-page="tech" data-i18n="navTech">TECNOLOGIA</button>
+      <button onclick="navigateTo('factions')" class="nav-link px-3 py-1.5 text-slate-300 hover:text-cyan-400" data-page="factions" data-i18n="navFactions">FAZIONI</button>
+      <button onclick="navigateTo('intel')" class="nav-link px-3 py-1.5 text-slate-300 hover:text-cyan-400" data-page="intel" data-i18n="navIntel">INTEL</button>
+    </nav>
 
-      <!-- PROCESSOR DUAL-HUD CONTROLS AUDIO MP3 -->
-      <div class="flex items-center gap-1.5 bg-slate-950 border border-slate-800 p-1">
-        <!-- PLAYER AUDIO MP3 -->
-        <button id="mp3-toggle-btn" onclick="toggleMp3Audio()" class="px-2.5 py-1 bg-slate-900 border border-cyan-400 text-cyan-400 text-xs font-mono flex items-center gap-1.5 hover:bg-cyan-400 hover:text-black transition-all">
+    <div class="flex items-center gap-2 sm:gap-3">
+      <!-- SELETTORE LINGUA -->
+      <select id="lang-select" onchange="changeLanguage(this.value)" class="bg-slate-900 border border-slate-700 text-cyan-400 font-mono text-xs px-2 py-1.5 focus:outline-none focus:border-cyan-400 cursor-pointer">
+        <option value="it">🇮🇹 IT</option>
+        <option value="en">🇬🇧 EN</option>
+        <option value="de">🇩🇪 DE</option>
+        <option value="fr">🇫🇷 FR</option>
+        <option value="ja">🇯🇵 JA</option>
+        <option value="zh">🇨🇳 ZH</option>
+        <option value="ru">🇷🇺 RU</option>
+      </select>
+
+      <!-- PROCESSATORE AUDIO -->
+      <div class="hidden sm:flex items-center gap-1 bg-slate-950 border border-slate-800 p-1">
+        <button id="mp3-toggle-btn" onclick="toggleMp3Audio()" class="px-2.5 py-1 bg-slate-900 border border-cyan-400 text-cyan-400 text-xs font-mono flex items-center gap-1 hover:bg-cyan-400 hover:text-black">
           <i data-lucide="music" class="w-3.5 h-3.5"></i>
           <span id="audio-label" data-i18n="audioOff">AUDIO: OFF</span>
         </button>
-
-        <!-- SELETTORE EFFETTI EQ AUDIO -->
-        <div class="flex items-center gap-1 pl-1 border-l border-slate-800">
-          <i data-lucide="activity" class="w-3.5 h-3.5 text-cyan-400 ml-1"></i>
-          <select id="eq-preset-select" onchange="applyAudioEQ(this.value)" class="bg-slate-900 border border-slate-700 text-cyan-400 font-mono text-[11px] px-2 py-1 focus:outline-none focus:border-cyan-400 transition-all cursor-pointer">
-            <option value="bypass">EQ: BYPASS (FLAT)</option>
-            <option value="bass">EQ: SYNTH BASS</option>
-            <option value="lofi">EQ: LO-FI FILTER</option>
-            <option value="cyber">EQ: CYBER-NOISE</option>
-          </select>
-        </div>
+        <select id="eq-preset-select" onchange="applyAudioEQ(this.value)" class="bg-slate-900 border border-slate-700 text-cyan-400 font-mono text-[11px] px-1.5 py-1 focus:outline-none cursor-pointer">
+          <option value="bypass">EQ: FLAT</option>
+          <option value="bass">EQ: BASS</option>
+          <option value="lofi">EQ: LO-FI</option>
+          <option value="cyber">EQ: CYBER</option>
+        </select>
       </div>
 
-      <a href="#preregister" data-i18n="preRegister" class="px-4 py-1.5 bg-cyan-400 text-black font-bold text-xs uppercase tracking-wider hover:bg-white transition-all">PRE-REGISTRATI</a>
+      <button onclick="navigateTo('preregister')" data-i18n="preRegister" class="px-3 py-1.5 bg-cyan-400 text-black font-bold text-xs uppercase tracking-wider hover:bg-white">
+        REGISTRATI
+      </button>
     </div>
   </header>
 
-  <!-- HERO SECTION -->
-  <section class="min-h-screen flex flex-col items-center justify-center text-center p-6 pt-24 relative overflow-hidden border-b border-slate-800">
-    <div class="max-w-4xl space-y-6 z-10">
-      <span data-i18n="systemStatus" class="px-3 py-1 bg-cyan-950/60 border border-cyan-400/40 text-cyan-400 text-xs font-mono tracking-widest uppercase">
-        2189 // NETWORK CORPORATIVO ATTIVO
-      </span>
-      
-      <h1 class="text-5xl md:text-8xl font-black text-white tracking-wider glow-cyan font-['Orbitron']">NEON DYNASTY</h1>
-      
-      <p id="hero-tagline" data-i18n="tagline" class="text-cyan-400 font-bold tracking-widest text-lg md:text-2xl uppercase">
-        COSTRUISCI LA CITTÀ. CONTROLLA IL FUTURO.
-      </p>
+  <!-- APP CONTAINERS // PAGINE DINAMICHE -->
+  <main class="pt-16">
 
-      <p id="hero-description" data-i18n="description" class="text-slate-300 max-w-2xl mx-auto text-sm md:text-base leading-relaxed">
-        I governi sono crollati. Le megacorporazioni dominano lo skyline industriale. Diventa l'Executive Director e gestisci la megacity nel 2189.
-      </p>
-      
-      <div class="flex flex-wrap justify-center gap-4 pt-4">
-        <a href="#city-map" data-i18n="enterCity" class="px-8 py-4 bg-cyan-400 text-black font-bold text-sm tracking-widest uppercase hover:bg-white transition-all hud-box">
-          ENTRA NELLA CITTÀ
-        </a>
-        <button onclick="openTrailerModal()" class="px-8 py-4 bg-slate-900 border border-pink-500 text-pink-400 font-bold text-sm tracking-widest uppercase flex items-center gap-2 hover:bg-pink-500 hover:text-black transition-all hud-box">
-          <i data-lucide="play-circle" class="w-5 h-5"></i>
-          <span data-i18n="watchTrailer">GUARDA IL TRAILER</span>
-        </button>
-      </div>
-    </div>
-  </section>
-
-  <!-- MODALE VIDEO TRAILER CON CONSOLE HUD E SELETTORE FILTRI FAZIONI -->
-  <div id="trailer-modal" class="fixed inset-0 bg-black/95 z-[100] hidden items-center justify-center p-4">
-    <div class="relative w-full max-w-5xl bg-slate-900 border border-cyan-400 p-4 hud-box space-y-3">
-      
-      <!-- Modal Header -->
-      <div class="flex items-center justify-between text-xs font-mono text-cyan-400 border-b border-slate-800 pb-2">
-        <div class="flex items-center gap-2">
-          <span class="w-2 h-2 rounded-full bg-cyan-400 animate-pulse"></span>
-          <span data-i18n="trailerHeader">CINEMATIC TRAILER // METRO 2189 HD FEED</span>
-        </div>
-        <button onclick="closeTrailerModal()" class="text-white hover:text-red-400 font-bold">CHIUDI [X]</button>
-      </div>
-      
-      <!-- Video Frame Wrapper -->
-      <div id="video-wrapper" class="relative aspect-video w-full bg-black border border-slate-800 overflow-hidden transition-all duration-300">
-        <div id="yt-player-container" class="w-full h-full"></div>
-        <div id="video-tint-overlay" class="absolute inset-0 pointer-events-none transition-all duration-300"></div>
-      </div>
-
-      <!-- CONSOLE CONTROLLI HUD AVANZATI -->
-      <div class="bg-slate-950 p-3 border border-slate-800 font-mono text-xs space-y-3">
+    <!-- ==================== PAGINA 1: HERO / HOME ==================== -->
+    <section id="page-home" class="page-view active min-h-[92vh] flex flex-col items-center justify-center text-center p-6 relative overflow-hidden border-b border-slate-800">
+      <div class="max-w-4xl space-y-6 z-10">
+        <span data-i18n="systemStatus" class="px-3 py-1 bg-cyan-950/60 border border-cyan-400/40 text-cyan-400 text-xs font-mono tracking-widest uppercase">
+          2189 // NETWORK CORPORATIVO ATTIVO
+        </span>
         
-        <!-- Barra di Avanzamento Personalizzata -->
-        <div class="flex items-center gap-3">
-          <span id="time-current" class="text-cyan-400">00:00</span>
-          <input id="progress-bar" type="range" min="0" max="100" value="0" step="0.1" oninput="seekVideo(this.value)" class="w-full cursor-pointer accent-cyan-400" />
-          <span id="time-duration" class="text-slate-500">00:00</span>
+        <h1 class="text-5xl md:text-8xl font-black text-white tracking-wider glow-cyan font-['Orbitron']">NEON DYNASTY</h1>
+        
+        <p id="hero-tagline" data-i18n="tagline" class="text-cyan-400 font-bold tracking-widest text-lg md:text-2xl uppercase">
+          COSTRUISCI LA CITTÀ. CONTROLLA IL FUTURO.
+        </p>
+
+        <p id="hero-description" data-i18n="description" class="text-slate-300 max-w-2xl mx-auto text-sm md:text-base leading-relaxed">
+          I governi sono crollati. Le megacorporazioni dominano lo skyline industriale. Diventa l'Executive Director e gestisci la megacity nel 2189.
+        </p>
+        
+        <div class="flex flex-wrap justify-center gap-4 pt-4">
+          <!-- PULSANTE PER APRIRE LA PAGINA CITTÀ CON FOTO E MAPPA -->
+          <button onclick="navigateTo('city')" data-i18n="enterCity" class="px-8 py-4 bg-cyan-400 text-black font-bold text-sm tracking-widest uppercase hover:bg-white transition-all hud-box">
+            ENTRA NELLA CITTÀ
+          </button>
+          <button onclick="openTrailerModal()" class="px-8 py-4 bg-slate-900 border border-pink-500 text-pink-400 font-bold text-sm tracking-widest uppercase flex items-center gap-2 hover:bg-pink-500 hover:text-black transition-all hud-box">
+            <i data-lucide="play-circle" class="w-5 h-5"></i>
+            <span data-i18n="watchTrailer">GUARDA IL TRAILER</span>
+          </button>
         </div>
+      </div>
+    </section>
 
-        <!-- Bottoni di Controllo & Audio -->
-        <div class="flex flex-wrap items-center justify-between gap-4">
-          <div class="flex items-center gap-3">
-            <button id="btn-play" onclick="togglePlayState()" class="px-3 py-1.5 bg-slate-900 border border-cyan-400 text-cyan-400 hover:bg-cyan-400 hover:text-black transition-all flex items-center gap-1.5">
-              <i data-lucide="play" class="w-3.5 h-3.5" id="icon-play"></i>
-              <span id="lbl-play">PLAY</span>
-            </button>
+    <!-- ==================== PAGINA 2: CITTÀ & FOTO METROPOLI ==================== -->
+    <section id="page-city" class="page-view max-w-7xl mx-auto px-4 py-8 space-y-12">
+      
+      <!-- Titolo Sezione -->
+      <div class="border-b border-slate-800 pb-4 flex flex-col sm:flex-row sm:items-end justify-between gap-4">
+        <div>
+          <span class="text-xs font-mono text-cyan-400 uppercase tracking-widest">METROPOLI SYNOPSIS // ERA 2189</span>
+          <h2 class="text-3xl md:text-5xl font-black text-white font-['Orbitron'] tracking-wide">LA CITTÀ DI NEON DYNASTY</h2>
+        </div>
+        <p class="text-xs font-mono text-slate-400 uppercase">8 DISTRETTI AUTONOMI // 87.4M ABITANTI</p>
+      </div>
 
-            <button onclick="stopVideo()" class="px-3 py-1.5 bg-slate-900 border border-slate-700 text-slate-300 hover:border-red-500 hover:text-red-400 transition-all">
-              STOP
-            </button>
-
-            <button id="btn-mute" onclick="toggleVideoMute()" class="px-3 py-1.5 bg-slate-900 border border-slate-700 text-slate-300 hover:border-cyan-400 hover:text-cyan-400 transition-all flex items-center gap-1.5">
-              <i data-lucide="volume-2" class="w-3.5 h-3.5" id="icon-mute"></i>
-              <span id="lbl-mute">MUTE</span>
-            </button>
-
-            <div class="flex items-center gap-2 border-l border-slate-800 pl-3">
-              <span class="text-slate-500 text-[10px]">VOL</span>
-              <input id="volume-slider" type="range" min="0" max="100" value="80" oninput="changeVideoVolume(this.value)" class="w-16" />
+      <!-- GALLERIA FOTOGRAFICA CITTÀ -->
+      <div class="space-y-4">
+        <h3 class="text-lg font-bold text-cyan-400 font-['Orbitron'] flex items-center gap-2">
+          <i data-lucide="camera" class="w-5 h-5"></i> PANORAMICA E PANORAMI NOTTURNI
+        </h3>
+        
+        <div class="grid grid-cols-1 md:grid-cols-3 gap-6">
+          <div class="bg-slate-900 border border-slate-800 p-3 hud-box space-y-2 group">
+            <div class="overflow-hidden aspect-video relative">
+              <img src="https://images.unsplash.com/photo-1509198397868-475647b2a1e5?auto=format&fit=crop&w=800&q=80" alt="Central Core Skyline" class="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500" />
+              <span class="absolute bottom-2 left-2 bg-black/80 text-cyan-400 text-[10px] font-mono px-2 py-0.5">SECT. 01 // CENTRAL CORE</span>
             </div>
+            <h4 class="font-bold text-white text-sm">CENTRAL CORE SKYLINE</h4>
+            <p class="text-xs text-slate-400">Torri di trading ad alta frequenza e banche dati trasmissioni orbitali.</p>
           </div>
 
-          <div class="flex items-center gap-3">
-            <span id="active-faction-badge" class="px-2 py-0.5 bg-cyan-950 border border-cyan-400/40 text-cyan-400 text-[10px] font-mono">
-              HUD: STANDARD
-            </span>
-            <button onclick="toggleFullscreen()" class="px-3 py-1.5 bg-slate-900 border border-slate-700 text-slate-300 hover:border-cyan-400 hover:text-cyan-400 transition-all flex items-center gap-1">
-              <i data-lucide="maximize" class="w-3.5 h-3.5"></i>
-              <span>FULLSCREEN</span>
-            </button>
+          <div class="bg-slate-900 border border-slate-800 p-3 hud-box space-y-2 group">
+            <div class="overflow-hidden aspect-video relative">
+              <img src="https://images.unsplash.com/photo-1519501025264-65ba15a82390?auto=format&fit=crop&w=800&q=80" alt="Neon Market District" class="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500" />
+              <span class="absolute bottom-2 left-2 bg-black/80 text-pink-400 text-[10px] font-mono px-2 py-0.5">SECT. 02 // NEON MARKET</span>
+            </div>
+            <h4 class="font-bold text-white text-sm">NEON MARKET BAZAAR</h4>
+            <p class="text-xs text-slate-400">Mercati multilivello di cyberware illegale e stimolanti sintetici.</p>
+          </div>
+
+          <div class="bg-slate-900 border border-slate-800 p-3 hud-box space-y-2 group">
+            <div class="overflow-hidden aspect-video relative">
+              <img src="https://images.unsplash.com/photo-1518709268805-4e9042af9f23?auto=format&fit=crop&w=800&q=80" alt="Industrial Belt" class="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500" />
+              <span class="absolute bottom-2 left-2 bg-black/80 text-red-400 text-[10px] font-mono px-2 py-0.5">SECT. 04 // INDUSTRIAL BELT</span>
+            </div>
+            <h4 class="font-bold text-white text-sm">INDUSTRIAL FOUNDRY</h4>
+            <p class="text-xs text-slate-400">Fonderie a fusione automatizzata e catene di montaggio robotizzate.</p>
           </div>
         </div>
+      </div>
 
-        <!-- BARRA SELEZIONE FAZIONI & FILTRI CROMATICI HUD -->
-        <div class="flex flex-wrap items-center justify-between gap-2 border-t border-slate-800/80 pt-2.5 mt-2">
-          <span class="text-[10px] text-slate-400 font-mono flex items-center gap-1">
-            <i data-lucide="sliders" class="w-3.5 h-3.5 text-cyan-400"></i>
-            <span>MEGACORP VISUAL FILTER:</span>
-          </span>
-          
-          <div class="flex flex-wrap gap-1.5 text-[10px] font-mono">
-            <button onclick="applyFactionFilter('neutral')" id="filter-btn-neutral" class="faction-btn px-2.5 py-1 bg-cyan-400 text-black border border-cyan-400 font-bold transition-all">
-              STANDARD
-            </button>
-            <button onclick="applyFactionFilter('nexus')" id="filter-btn-nexus" class="faction-btn px-2.5 py-1 bg-slate-900 border border-slate-800 text-cyan-400 hover:border-cyan-400 transition-all">
-              NEXUS [CYAN]
-            </button>
-            <button onclick="applyFactionFilter('kovaris')" id="filter-btn-kovaris" class="faction-btn px-2.5 py-1 bg-slate-900 border border-slate-800 text-purple-400 hover:border-purple-500 transition-all">
-              KOVARIS [VIOLET]
-            </button>
-            <button onclick="applyFactionFilter('vantage')" id="filter-btn-vantage" class="faction-btn px-2.5 py-1 bg-slate-900 border border-slate-800 text-red-400 hover:border-red-500 transition-all">
-              VANTAGE [RED]
-            </button>
-            <button onclick="applyFactionFilter('voidline')" id="filter-btn-voidline" class="faction-btn px-2.5 py-1 bg-slate-900 border border-slate-800 text-pink-400 hover:border-pink-500 transition-all">
-              VOIDLINE [MAGENTA]
-            </button>
-          </div>
+      <!-- MAPPA TATTICA INTERATTIVA VETTORIALE CON ISPETTORE -->
+      <div class="grid grid-cols-1 lg:grid-cols-12 gap-8 items-start pt-6 border-t border-slate-800">
+        
+        <!-- Mappa SVG (8 Colonne) -->
+        <div class="lg:col-span-8 bg-slate-950 border border-slate-800 p-4 relative hud-box min-h-[380px] flex items-center justify-center">
+          <svg viewBox="0 0 800 600" class="w-full h-auto z-10 max-h-[480px]">
+            <polygon id="poly-1" points="350,180 450,180 490,260 410,320 330,270" fill="#00E5FF" fill-opacity="0.25" stroke="#00E5FF" stroke-width="1.5" class="district-poly active" onclick="selectDistrict(1)" />
+            <text x="400" y="240" fill="#ffffff" font-family="Orbitron" font-size="12" font-weight="bold" text-anchor="middle" pointer-events="none">01 CENTRAL CORE</text>
+
+            <polygon id="poly-2" points="450,180 560,150 610,230 490,260" fill="#FF2BD6" fill-opacity="0.25" stroke="#FF2BD6" stroke-width="1.5" class="district-poly" onclick="selectDistrict(2)" />
+            <text x="525" y="205" fill="#ffffff" font-family="Orbitron" font-size="11" text-anchor="middle" pointer-events="none">02 NEON MARKET</text>
+
+            <polygon id="poly-3" points="260,110 380,100 350,180 280,200" fill="#7A4DFF" fill-opacity="0.25" stroke="#7A4DFF" stroke-width="1.5" class="district-poly" onclick="selectDistrict(3)" />
+            <text x="320" y="145" fill="#ffffff" font-family="Orbitron" font-size="11" text-anchor="middle" pointer-events="none">03 CORP HEIGHTS</text>
+
+            <polygon id="poly-4" points="410,320 520,310 570,410 430,420" fill="#FF304F" fill-opacity="0.25" stroke="#FF304F" stroke-width="1.5" class="district-poly" onclick="selectDistrict(4)" />
+            <text x="480" y="365" fill="#ffffff" font-family="Orbitron" font-size="11" text-anchor="middle" pointer-events="none">04 INDUSTRIAL BELT</text>
+
+            <polygon id="poly-5" points="230,270 330,270 410,320 310,390 210,340" fill="#00E5FF" fill-opacity="0.2" stroke="#00E5FF" stroke-width="1.5" class="district-poly" onclick="selectDistrict(5)" />
+            <text x="290" y="325" fill="#ffffff" font-family="Orbitron" font-size="11" text-anchor="middle" pointer-events="none">05 UNDERCITY</text>
+          </svg>
+        </div>
+
+        <!-- Pannello Dettagli Distretto (4 Colonne) -->
+        <div id="district-panel" class="lg:col-span-4 bg-slate-900 p-6 border border-slate-800 hud-box space-y-6">
+          <!-- Iniettato da JS -->
         </div>
 
       </div>
 
+    </section>
+
+    <!-- ==================== PAGINA 3: COSTRUZIONE IMPERO ==================== -->
+    <section id="page-build" class="page-view max-w-7xl mx-auto px-4 py-8 space-y-8">
+      <div class="border-b border-slate-800 pb-4">
+        <span class="text-xs font-mono text-pink-400 uppercase tracking-widest">INFRASTRUCTURE MODULE</span>
+        <h2 class="text-3xl md:text-5xl font-black text-white font-['Orbitron']">COSTRUISCI IL TUO IMPERO</h2>
+      </div>
+
+      <div class="grid grid-cols-1 md:grid-cols-3 gap-6">
+        <div class="bg-slate-900 border border-slate-800 p-6 hud-box space-y-4">
+          <div class="flex justify-between border-b border-slate-800 pb-2">
+            <h4 class="font-bold text-white font-['Orbitron']">NEXUS TOWER</h4>
+            <span class="text-cyan-400 text-xs font-mono">LIVELLO 07</span>
+          </div>
+          <p class="text-xs text-slate-300">Sede centrale direzionale. Genera entrate finanziarie passive e influenza.</p>
+          <div class="flex justify-between text-xs font-mono">
+            <span class="text-slate-400">COSTO: €240M</span>
+            <span class="text-emerald-400">+€8.4M/MESE</span>
+          </div>
+          <button onclick="alert('TORRE AGGIORNATA A LIVELLO 08!')" class="w-full py-2 bg-cyan-400 text-black font-bold text-xs uppercase">AGGIORNA EDIFICIO</button>
+        </div>
+
+        <div class="bg-slate-900 border border-slate-800 p-6 hud-box space-y-4">
+          <div class="flex justify-between border-b border-slate-800 pb-2">
+            <h4 class="font-bold text-white font-['Orbitron']">FUSION ARRAY 09</h4>
+            <span class="text-cyan-400 text-xs font-mono">LIVELLO 04</span>
+          </div>
+          <p class="text-xs text-slate-300">Centrale a fusione termica che alimenta la rete elettrica dei distretti.</p>
+          <div class="flex justify-between text-xs font-mono">
+            <span class="text-slate-400">COSTO: €180M</span>
+            <span class="text-yellow-400">ENERGIA +35%</span>
+          </div>
+          <button onclick="alert('CENTRALE AGGIORNATA A LIVELLO 05!')" class="w-full py-2 bg-cyan-400 text-black font-bold text-xs uppercase">AGGIORNA EDIFICIO</button>
+        </div>
+
+        <div class="bg-slate-900 border border-slate-800 p-6 hud-box space-y-4">
+          <div class="flex justify-between border-b border-slate-800 pb-2">
+            <h4 class="font-bold text-white font-['Orbitron']">QUANTUM AI LAB</h4>
+            <span class="text-cyan-400 text-xs font-mono">LIVELLO 02</span>
+          </div>
+          <p class="text-xs text-slate-300">Laboratorio di calcolo neurale avanzato per accelerare la ricerca tecnologica.</p>
+          <div class="flex justify-between text-xs font-mono">
+            <span class="text-slate-400">COSTO: €310M</span>
+            <span class="text-purple-400">RICERCA +20%</span>
+          </div>
+          <button onclick="alert('LABORATORIO AGGIORNATO A LIVELLO 03!')" class="w-full py-2 bg-cyan-400 text-black font-bold text-xs uppercase">AGGIORNA EDIFICIO</button>
+        </div>
+      </div>
+    </section>
+
+    <!-- ==================== PAGINA 4: TECNOLOGIA ==================== -->
+    <section id="page-tech" class="page-view max-w-7xl mx-auto px-4 py-8 space-y-8">
+      <div class="border-b border-slate-800 pb-4">
+        <span class="text-xs font-mono text-cyan-400 uppercase tracking-widest">RESEARCH & DEVELOPMENT</span>
+        <h2 class="text-3xl md:text-5xl font-black text-white font-['Orbitron']">ALBERO TECNOLOGICO</h2>
+      </div>
+
+      <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+        <div class="bg-slate-900 border border-cyan-400 p-6 hud-box space-y-3">
+          <div class="flex justify-between text-xs font-mono border-b border-slate-800 pb-2">
+            <span class="text-slate-400">RAMO AI</span>
+            <span class="text-emerald-400 font-bold">SBLOCCATO</span>
+          </div>
+          <h4 class="font-bold text-white text-lg font-['Orbitron']">QUANTUM AI CORE</h4>
+          <p class="text-xs text-slate-300">Architettura neurale autonoma in grado di gestire le infrastrutture metropolitane senza latenza umana.</p>
+        </div>
+
+        <div class="bg-slate-900 border border-slate-800 p-6 hud-box space-y-3">
+          <div class="flex justify-between text-xs font-mono border-b border-slate-800 pb-2">
+            <span class="text-slate-400">RAMO CYBERNETICS</span>
+            <span class="text-cyan-400">DISPONIBILE // 24,000 RP</span>
+          </div>
+          <h4 class="font-bold text-white text-lg font-['Orbitron']">NEURAL LINK MK-IV</h4>
+          <p class="text-xs text-slate-300">Interfacce cervello-computer dirette per aumentare l'efficienza dei lavoratori corporativi.</p>
+          <button onclick="alert('RICERCA AVVIATA SUL NEURAL LINK MK-IV!')" class="px-4 py-2 bg-slate-800 border border-cyan-400 text-cyan-400 font-bold text-xs uppercase hover:bg-cyan-400 hover:text-black">AVVIA RICERCA</button>
+        </div>
+      </div>
+    </section>
+
+    <!-- ==================== PAGINA 5: FAZIONI ==================== -->
+    <section id="page-factions" class="page-view max-w-7xl mx-auto px-4 py-8 space-y-8">
+      <div class="border-b border-slate-800 pb-4">
+        <span class="text-xs font-mono text-purple-400 uppercase tracking-widest">DIPLOMATIC MATRIX</span>
+        <h2 class="text-3xl md:text-5xl font-black text-white font-['Orbitron']">MEGACORPORAZIONI</h2>
+      </div>
+
+      <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+        <div class="bg-slate-900 border border-slate-800 p-6 hud-box space-y-3">
+          <h3 class="text-xl font-bold text-cyan-400 font-['Orbitron']">NEXUS INDUSTRIES</h3>
+          <p class="text-xs text-slate-300">Dominatore nello sviluppo AI e droni di manutenzione cittadina.</p>
+          <div class="text-xs font-mono text-slate-400">RELAZIONE: <span class="text-emerald-400 font-bold">+42</span></div>
+        </div>
+        <div class="bg-slate-900 border border-slate-800 p-6 hud-box space-y-3">
+          <h3 class="text-xl font-bold text-purple-400 font-['Orbitron']">KOVARIS ENERGY</h3>
+          <p class="text-xs text-slate-300">Monopolio della rete termonucleare e dei collettori solari orbitali.</p>
+          <div class="text-xs font-mono text-slate-400">RELAZIONE: <span class="text-emerald-400 font-bold">+18</span></div>
+        </div>
+      </div>
+    </section>
+
+    <!-- ==================== PAGINA 6: INTEL DATABASE ==================== -->
+    <section id="page-intel" class="page-view max-w-7xl mx-auto px-4 py-8 space-y-8">
+      <div class="border-b border-slate-800 pb-4">
+        <span class="text-xs font-mono text-cyan-400 uppercase tracking-widest">ARCHIVIO RISERVATO</span>
+        <h2 class="text-3xl md:text-5xl font-black text-white font-['Orbitron']">CORPORATE INTELLIGENCE</h2>
+      </div>
+
+      <div class="space-y-4">
+        <input type="text" id="intel-search" placeholder="CERCA NEL DATABASE... (es. 'VOID')" class="w-full max-w-md bg-slate-900 border border-slate-800 px-4 py-2 text-xs font-mono text-white focus:outline-none focus:border-cyan-400" />
+        <div class="bg-slate-900 border border-slate-800 p-4 hud-box">
+          <span class="text-[10px] font-mono text-cyan-400">FILE #DB-101</span>
+          <h4 class="font-bold text-white text-sm">PROTOCOLLI FINANZIARI CENTRAL CORE</h4>
+          <p class="text-xs text-slate-300 mt-1">Report sui flussi di liquidità ad alta frequenza nel Distretto 01.</p>
+        </div>
+      </div>
+    </section>
+
+    <!-- ==================== PAGINA 7: PRE-REGISTRAZIONE ==================== -->
+    <section id="page-preregister" class="page-view max-w-3xl mx-auto px-4 py-12 space-y-8 text-center">
+      <div class="space-y-3">
+        <h2 class="text-4xl md:text-6xl font-black text-white font-['Orbitron'] glow-cyan">LA TUA CITTÀ. LE TUE REGOLE.</h2>
+        <p class="text-slate-300 text-sm">Pre-registrati ora per ricevere l'accesso executive al lancio e 50.000.000 € di capitale iniziale.</p>
+      </div>
+
+      <form onsubmit="event.preventDefault(); alert('REGISTRAZIONE COMPLETATA! ID EXECUTIVE: ND-894102');" class="bg-slate-900 p-8 border border-slate-800 hud-box space-y-4 text-left">
+        <div>
+          <label class="block text-xs font-mono text-slate-300 mb-1 uppercase">EMAIL EXECUTIVE</label>
+          <input type="email" required placeholder="director@corporate.net" class="w-full bg-slate-950 border border-slate-800 px-4 py-3 text-sm text-white focus:border-cyan-400 focus:outline-none" />
+        </div>
+        <div>
+          <label class="block text-xs font-mono text-slate-300 mb-1 uppercase">PIATTAFORMA</label>
+          <select class="w-full bg-slate-950 border border-slate-800 px-4 py-3 text-sm text-white focus:border-cyan-400 focus:outline-none">
+            <option>PC // WINDOWS & LINUX</option>
+            <option>PLAYSTATION 5</option>
+            <option>XBOX SERIES X|S</option>
+            <option>MOBILE // iOS & ANDROID</option>
+          </select>
+        </div>
+        <button type="submit" class="w-full py-4 bg-cyan-400 text-black font-black text-sm uppercase tracking-wider hover:bg-white">ENTRA NEL NETWORK</button>
+      </form>
+    </section>
+
+  </main>
+
+  <!-- NAVIGAZIONE BOTTOM BAR MOBILE FISSA -->
+  <div class="lg:hidden fixed bottom-0 left-0 right-0 z-50 bg-[#050609]/95 border-t border-slate-800 font-mono text-[10px]">
+    <div class="grid grid-cols-5 text-center py-2">
+      <button onclick="navigateTo('home')" class="flex flex-col items-center gap-1 text-slate-400 hover:text-cyan-400">
+        <i data-lucide="home" class="w-4 h-4"></i>
+        <span>HOME</span>
+      </button>
+      <button onclick="navigateTo('city')" class="flex flex-col items-center gap-1 text-slate-400 hover:text-cyan-400">
+        <i data-lucide="map" class="w-4 h-4"></i>
+        <span>CITTÀ</span>
+      </button>
+      <button onclick="navigateTo('build')" class="flex flex-col items-center gap-1 text-slate-400 hover:text-cyan-400">
+        <i data-lucide="hammer" class="w-4 h-4"></i>
+        <span>BUILD</span>
+      </button>
+      <button onclick="navigateTo('tech')" class="flex flex-col items-center gap-1 text-slate-400 hover:text-cyan-400">
+        <i data-lucide="cpu" class="w-4 h-4"></i>
+        <span>TECH</span>
+      </button>
+      <button onclick="navigateTo('preregister')" class="flex flex-col items-center gap-1 text-slate-400 hover:text-cyan-400">
+        <i data-lucide="user" class="w-4 h-4"></i>
+        <span>PROFILE</span>
+      </button>
     </div>
   </div>
 
+  <!-- MODALE YOUTUBE TRAILER -->
+  <div id="trailer-modal" class="fixed inset-0 bg-black/95 z-[100] hidden items-center justify-center p-4">
+    <div class="relative w-full max-w-5xl bg-slate-900 border border-cyan-400 p-4 hud-box space-y-3">
+      <div class="flex items-center justify-between text-xs font-mono text-cyan-400 border-b border-slate-800 pb-2">
+        <span data-i18n="trailerHeader">CINEMATIC TRAILER // METRO 2189 HD FEED</span>
+        <button onclick="closeTrailerModal()" class="text-white hover:text-red-400 font-bold">CHIUDI [X]</button>
+      </div>
+      
+      <div id="video-wrapper" class="relative aspect-video w-full bg-black border border-slate-800 overflow-hidden">
+        <div id="yt-player-container" class="w-full h-full"></div>
+        <div id="video-tint-overlay" class="absolute inset-0 pointer-events-none"></div>
+      </div>
+    </div>
+  </div>
+
+  <!-- JAVASCRIPT APP LOGIC & ROUTER -->
   <script>
     lucide.createIcons();
 
-    /* TRADUZIONI MULTILINGUA */
-    const translations = {
-      it: {
-        tagline: "COSTRUISCI LA CITTÀ. CONTROLLA IL FUTURO.",
-        description: "I governi sono crollati. Le megacorporazioni dominano lo skyline industriale. Diventa l'Executive Director e gestisci la megacity nel 2189.",
-        enterCity: "ENTRA NELLA CITTÀ",
-        watchTrailer: "GUARDA IL TRAILER",
-        preRegister: "PRE-REGISTRATI",
-        audioOff: "AUDIO: OFF",
-        audioOn: "AUDIO: ON",
-        systemStatus: "2189 // NETWORK CORPORATIVO ATTIVO",
-        trailerHeader: "CINEMATIC TRAILER // METRO 2189 HD FEED"
-      },
-      en: {
-        tagline: "BUILD THE CITY. CONTROL THE FUTURE.",
-        description: "Governments have fallen. Megacorporations rule the industrial skyline. Become the Executive Director and manage the megacity in 2189.",
-        enterCity: "ENTER THE CITY",
-        watchTrailer: "WATCH TRAILER",
-        preRegister: "PRE-REGISTER",
-        audioOff: "AUDIO: OFF",
-        audioOn: "AUDIO: ON",
-        systemStatus: "2189 // CORPORATE NETWORK ONLINE",
-        trailerHeader: "CINEMATIC TRAILER // METRO 2189 HD FEED"
-      },
-      de: {
-        tagline: "BAUE DIE STADT. STEUERE DIE ZUKUNFT.",
-        description: "Regierungen sind gestürzt. Megakonzerne beherrschen die Skyline. Werden Sie Executive Director im Jahr 2189.",
-        enterCity: "STADT BETRETEN",
-        watchTrailer: "TRAILER ANSEHEN",
-        preRegister: "VORREGISTRIERUNG",
-        audioOff: "AUDIO: AUS",
-        audioOn: "AUDIO: AN",
-        systemStatus: "2189 // KONZERN-NETZWERK ONLINE",
-        trailerHeader: "CINEMATIC TRAILER // METRO 2189 HD FEED"
-      },
-      fr: {
-        tagline: "BATISSEZ LA VILLE. CONTROLEZ L'AVENIR.",
-        description: "Les gouvernements sont tombés. Les mégacorporations règnent. Devenez le directeur exécutif dans la mégapole en 2189.",
-        enterCity: "ENTRER DANS LA VILLE",
-        watchTrailer: "VOIR LE TRAILER",
-        preRegister: "PRÉ-INSCRIPTION",
-        audioOff: "AUDIO: DESACTIVER",
-        audioOn: "AUDIO: ACTIVER",
-        systemStatus: "2189 // RÉSEAU CORPORATIF EN LIGNE",
-        trailerHeader: "CINEMATIC TRAILER // METRO 2189 HD FEED"
-      },
-      ja: {
-        tagline: "都市を建設せよ。未来を支配せよ。",
-        description: "政府は崩壊した。メガコーポレーションが産業のスカイラインを支配する。2189年、最高経営責任者となりメガシティを管理せよ。",
-        enterCity: "都市に入る",
-        watchTrailer: "トレーラーを見る",
-        preRegister: "事前登録",
-        audioOff: "音声: オフ",
-        audioOn: "音声: オン",
-        systemStatus: "2189 // 企業ネットワーク オンライン",
-        trailerHeader: "シネマティックプレビュー // METRO 2189"
-      },
-      zh: {
-        tagline: "建设城市。控制未来。",
-        description: "政府已经崩溃。巨型企业统治着工业天际线。在2189年成为执行董事并管理巨型城市。",
-        enterCity: "进入城市",
-        watchTrailer: "观看预告片",
-        preRegister: "预先注册",
-        audioOff: "音频: 关闭",
-        audioOn: "音频: 开启",
-        systemStatus: "2189 // 集团网络 在线",
-        trailerHeader: "电影预览 // METRO 2189"
-      },
-      ru: {
-        tagline: "STROITYE GOROD. KONTROLIRUYTE BUDUSHCHEE.",
-        description: "Правительства пали. Мегакорпорации правят индустриальным скайлайном. Станьте исполнительным директором в 2189 году.",
-        enterCity: "ВОЙТИ В ГОРОД",
-        watchTrailer: "СМОТРЕТЬ ТРЕЙЛЕР",
-        preRegister: "РЕГИСТРАЦИЯ",
-        audioOff: "АУДИО: ВЫКЛ",
-        audioOn: "АУДИО: ВКЛ",
-        systemStatus: "2189 // КОРПОРАТИВНАЯ СЕТЬ ОНЛАЙН",
-        trailerHeader: "ОФИЦИАЛЬНЫЙ ТРЕЙЛЕР // METRO 2189"
+    /* ROUTER CAMBIO PAGINA */
+    function navigateTo(pageId) {
+      document.querySelectorAll('.page-view').forEach(el => el.classList.remove('active'));
+      const target = document.getElementById(`page-${pageId}`);
+      if (target) {
+        target.classList.add('active');
+        window.scrollTo({ top: 0, behavior: 'smooth' });
       }
-    };
 
-    let currentLang = 'it';
-
-    function changeLanguage(langKey) {
-      if (!translations[langKey]) return;
-      currentLang = langKey;
-      const dict = translations[langKey];
-
-      document.querySelectorAll('[data-i18n]').forEach(el => {
-        const key = el.getAttribute('data-i18n');
-        if (dict[key]) {
-          el.innerText = dict[key];
+      // Evidenzia link attivo
+      document.querySelectorAll('.nav-link').forEach(btn => {
+        if (btn.getAttribute('data-page') === pageId) {
+          btn.classList.add('text-cyan-400', 'font-bold');
+        } else {
+          btn.classList.remove('text-cyan-400', 'font-bold');
         }
       });
     }
 
-    /* WEB AUDIO API ENGINE - PROCESSATORE EQ AUDIO MP3 */
-    let audioCtx = null;
-    let audioSource = null;
-    let biquadLow = null;
-    let biquadHigh = null;
-    let gainNode = null;
-    let isMp3Playing = false;
+    /* DATI DISTRETTI CITTÀ */
+    const districtsData = [
+      { id: 1, name: "CENTRAL CORE", pop: "12.8M", value: "€2.4T", resource: "FINANZA", desc: "Cuore direzionale e sede delle banche dati delle megacorporazioni." },
+      { id: 2, name: "NEON MARKET", pop: "18.2M", value: "€1.8T", resource: "COMMERCIO", desc: "Bazaar multilivello di tecnologia e mercati neri." },
+      { id: 3, name: "CORPORATE HEIGHTS", pop: "4.1M", value: "€3.1T", resource: "EXECUTIVE", desc: "Torri di lusso oltre lo strato delle nuvole." },
+      { id: 4, name: "INDUSTRIAL BELT", pop: "15.6M", value: "€1.2T", resource: "MANIFATTURA", desc: "Fonderie e catene di montaggio automatizzate." },
+      { id: 5, name: "UNDERCITY", pop: "22.4M", value: "€0.6T", resource: "BLACK MARKET", desc: "Livello sotterraneo controllato da hacker e sindacati." }
+    ];
+
+    function selectDistrict(id) {
+      document.querySelectorAll('.district-poly').forEach(p => p.classList.remove('active'));
+      const poly = document.getElementById(`poly-${id}`);
+      if (poly) poly.classList.add('active');
+
+      const d = districtsData.find(item => item.id === id);
+      const panel = document.getElementById('district-panel');
+      if (d && panel) {
+        panel.innerHTML = `
+          <div class="border-b border-slate-800 pb-2">
+            <span class="text-[10px] font-mono text-cyan-400">DISTRETTO 0${d.id}</span>
+            <h3 class="font-bold text-white text-xl font-['Orbitron']">${d.name}</h3>
+          </div>
+          <p class="text-xs text-slate-300">${d.desc}</p>
+          <div class="grid grid-cols-2 gap-2 font-mono text-xs">
+            <div class="bg-slate-950 p-2 border border-slate-800"><span class="text-slate-500 block">POP</span><span class="text-white font-bold">${d.pop}</span></div>
+            <div class="bg-slate-950 p-2 border border-slate-800"><span class="text-slate-500 block">VALORE</span><span class="text-cyan-400 font-bold">${d.value}</span></div>
+          </div>
+        `;
+      }
+    }
+
+    /* INIZIALIZZA PRIMO DISTRETTO */
+    selectDistrict(1);
+
+    /* TRADUZIONI LINGUE (i18n) */
+    const translations = {
+      it: { tagline: "COSTRUISCI LA CITTÀ. CONTROLLA IL FUTURO.", enterCity: "ENTRA NELLA CITTÀ", watchTrailer: "GUARDA IL TRAILER", preRegister: "REGISTRATI", navHome: "HOME", navCity: "CITTÀ & MAPPA", navBuild: "COSTRUISCI", navTech: "TECNOLOGIA", navFactions: "FAZIONI", navIntel: "INTEL" },
+      en: { tagline: "BUILD THE CITY. CONTROL THE FUTURE.", enterCity: "ENTER THE CITY", watchTrailer: "WATCH TRAILER", preRegister: "REGISTER", navHome: "HOME", navCity: "CITY & MAP", navBuild: "BUILD", navTech: "TECH TREE", navFactions: "FACTIONS", navIntel: "INTEL" },
+      de: { tagline: "BAUE DIE STADT. STEUERE DIE ZUKUNFT.", enterCity: "STADT BETRETEN", watchTrailer: "TRAILER ANSEHEN", preRegister: "REGISTRIERUNG", navHome: "HOME", navCity: "STADT", navBuild: "BAUEN", navTech: "TECH", navFactions: "FRAKTIONEN", navIntel: "INTEL" },
+      fr: { tagline: "BATISSEZ LA VILLE. CONTROLEZ L'AVENIR.", enterCity: "ENTRER DANS LA VILLE", watchTrailer: "VOIR LE TRAILER", preRegister: "S'INSCRIRE", navHome: "ACCUEIL", navCity: "VILLE", navBuild: "BATIR", navTech: "TECH", navFactions: "FACTIONS", navIntel: "INTEL" },
+      ja: { tagline: "都市を建設せよ。未来を支配せよ。", enterCity: "都市に入る", watchTrailer: "トレーラーを見る", preRegister: "登録", navHome: "ホーム", navCity: "都市", navBuild: "建設", navTech: "技術", navFactions: "派閥", navIntel: "情報" },
+      zh: { tagline: "建设城市。控制未来。", enterCity: "进入城市", watchTrailer: "观看预告片", preRegister: "注册", navHome: "首页", navCity: "城市", navBuild: "建设", navTech: "科技", navFactions: "阵营", navIntel: "情报" },
+      ru: { tagline: "STROITYE GOROD. KONTROLIRUYTE BUDUSHCHEE.", enterCity: "ВОЙТИ В ГОРОД", watchTrailer: "ТРЕЙЛЕР", preRegister: "РЕГИСТРАЦИЯ", navHome: "ГЛАВНАЯ", navCity: "ГОРОД", navBuild: "СТРОИТЬ", navTech: "ТЕХНОЛОГИИ", navFactions: "ФРАКЦИИ", navIntel: "ИНФО" }
+    };
+
+    function changeLanguage(langKey) {
+      const dict = translations[langKey];
+      if (!dict) return;
+      document.querySelectorAll('[data-i18n]').forEach(el => {
+        const key = el.getAttribute('data-i18n');
+        if (dict[key]) el.innerText = dict[key];
+      });
+    }
+
+    /* AUDIO WEB ENGINE & DSP */
+    let audioCtx = null, audioSource = null, biquadLow = null, gainNode = null, isMp3Playing = false;
     const bgAudio = document.getElementById('bg-audio');
 
     function initWebAudioDSP() {
       if (!audioCtx) {
-        const AudioCtxClass = window.AudioContext || window.webkitAudioContext;
-        audioCtx = new AudioCtxClass();
-        
+        audioCtx = new (window.AudioContext || window.webkitAudioContext)();
         audioSource = audioCtx.createMediaElementSource(bgAudio);
         biquadLow = audioCtx.createBiquadFilter();
-        biquadHigh = audioCtx.createBiquadFilter();
         gainNode = audioCtx.createGain();
-
-        // Catena di segnale DSP: Source -> BiquadLow -> BiquadHigh -> GainNode -> Destination
         audioSource.connect(biquadLow);
-        biquadLow.connect(biquadHigh);
-        biquadHigh.connect(gainNode);
+        biquadLow.connect(gainNode);
         gainNode.connect(audioCtx.destination);
-
-        // Impostazione di default: Bypass
-        applyAudioEQ('bypass');
-      }
-
-      if (audioCtx.state === 'suspended') {
-        audioCtx.resume();
       }
     }
 
     function applyAudioEQ(preset) {
       initWebAudioDSP();
-      if (!biquadLow || !biquadHigh || !gainNode) return;
-
-      const now = audioCtx.currentTime;
-
-      switch (preset) {
-        case 'bass': // SYNTH BASS: Cut delle alte, boost pesante sul sub-bass
-          biquadLow.type = 'lowpass';
-          biquadLow.frequency.setValueAtTime(400, now);
-          
-          biquadHigh.type = 'lowshelf';
-          biquadHigh.frequency.setValueAtTime(120, now);
-          biquadHigh.gain.setValueAtTime(8, now); // +8dB bass boost
-          
-          gainNode.gain.setValueAtTime(1.2, now);
-          break;
-
-        case 'lofi': // LO-FI FILTER: Banda passante limitata (effetto radio)
-          biquadLow.type = 'lowpass';
-          biquadLow.frequency.setValueAtTime(2200, now);
-          
-          biquadHigh.type = 'highpass';
-          biquadHigh.frequency.setValueAtTime(500, now);
-          
-          gainNode.gain.setValueAtTime(0.9, now);
-          break;
-
-        case 'cyber': // CYBER-NOISE: Passa-alto con picco risonante aggressivo
-          biquadLow.type = 'highpass';
-          biquadLow.frequency.setValueAtTime(1000, now);
-          
-          biquadHigh.type = 'peaking';
-          biquadHigh.frequency.setValueAtTime(3500, now);
-          biquadHigh.Q.setValueAtTime(3, now);
-          biquadHigh.gain.setValueAtTime(12, now); // +12dB peak
-          
-          gainNode.gain.setValueAtTime(0.85, now);
-          break;
-
-        case 'bypass':
-        default: // BYPASS (FLAT): Nessuna alterazione di frequenza
-          biquadLow.type = 'allpass';
-          biquadHigh.type = 'allpass';
-          gainNode.gain.setValueAtTime(1.0, now);
-          break;
-      }
+      if (!biquadLow) return;
+      if (preset === 'bass') { biquadLow.type = 'lowpass'; biquadLow.frequency.value = 400; }
+      else if (preset === 'lofi') { biquadLow.type = 'bandpass'; biquadLow.frequency.value = 1200; }
+      else { biquadLow.type = 'allpass'; }
     }
 
     function toggleMp3Audio() {
       initWebAudioDSP();
-
       if (!isMp3Playing) {
-        bgAudio.play().then(() => {
-          isMp3Playing = true;
-          document.getElementById('audio-label').innerText = translations[currentLang].audioOn;
-        }).catch(err => console.log("Audio bloccato:", err));
+        bgAudio.play(); isMp3Playing = true;
+        document.getElementById('audio-label').innerText = "AUDIO: ON";
       } else {
-        bgAudio.pause();
-        isMp3Playing = false;
-        document.getElementById('audio-label').innerText = translations[currentLang].audioOff;
+        bgAudio.pause(); isMp3Playing = false;
+        document.getElementById('audio-label').innerText = "AUDIO: OFF";
       }
     }
 
-    /* MATRICE FILTRI FAZIONI CORPORATIVE */
-    const factionFilters = {
-      neutral: {
-        label: "HUD: STANDARD",
-        cssFilter: "none",
-        tintColor: "transparent",
-        blendMode: "normal",
-        glow: "0 0 0px transparent",
-        btnColorClass: "text-cyan-400"
-      },
-      nexus: {
-        label: "HUD: NEXUS INDUSTRIES",
-        cssFilter: "contrast(1.25) saturate(1.5) hue-rotate(130deg)",
-        tintColor: "rgba(0, 229, 255, 0.15)",
-        blendMode: "screen",
-        glow: "0 0 25px rgba(0, 229, 255, 0.4)",
-        btnColorClass: "text-cyan-400"
-      },
-      kovaris: {
-        label: "HUD: KOVARIS ENERGY",
-        cssFilter: "contrast(1.3) saturate(1.6) hue-rotate(220deg)",
-        tintColor: "rgba(122, 77, 255, 0.2)",
-        blendMode: "screen",
-        glow: "0 0 25px rgba(122, 77, 255, 0.45)",
-        btnColorClass: "text-purple-400"
-      },
-      vantage: {
-        label: "HUD: VANTAGE SYSTEMS",
-        cssFilter: "contrast(1.35) saturate(1.8) hue-rotate(325deg) sepia(0.2)",
-        tintColor: "rgba(255, 48, 79, 0.22)",
-        blendMode: "color-dodge",
-        glow: "0 0 25px rgba(255, 48, 79, 0.45)",
-        btnColorClass: "text-red-400"
-      },
-      voidline: {
-        label: "HUD: VOIDLINE SYNDICATE",
-        cssFilter: "contrast(1.3) saturate(2) hue-rotate(270deg)",
-        tintColor: "rgba(255, 43, 214, 0.2)",
-        blendMode: "screen",
-        glow: "0 0 25px rgba(255, 43, 214, 0.45)",
-        btnColorClass: "text-pink-400"
-      }
-    };
-
-    function applyFactionFilter(key) {
-      const config = factionFilters[key];
-      if (!config) return;
-
-      const playerContainer = document.getElementById('yt-player-container');
-      const tintOverlay = document.getElementById('video-tint-overlay');
-      const videoWrapper = document.getElementById('video-wrapper');
-      const badge = document.getElementById('active-faction-badge');
-
-      if (playerContainer) {
-        playerContainer.style.filter = config.cssFilter;
-      }
-
-      if (tintOverlay) {
-        tintOverlay.style.backgroundColor = config.tintColor;
-        tintOverlay.style.mixBlendMode = config.blendMode;
-      }
-
-      if (videoWrapper) {
-        videoWrapper.style.boxShadow = config.glow;
-      }
-
-      if (badge) {
-        badge.innerText = config.label;
-        badge.className = `px-2 py-0.5 bg-slate-950 border border-slate-800 ${config.btnColorClass} text-[10px] font-mono`;
-      }
-
-      document.querySelectorAll('.faction-btn').forEach(btn => {
-        btn.classList.remove('bg-cyan-400', 'text-black', 'font-bold');
-        btn.classList.add('bg-slate-900');
-      });
-
-      const activeBtn = document.getElementById(`filter-btn-${key}`);
-      if (activeBtn) {
-        activeBtn.classList.remove('bg-slate-900');
-        activeBtn.classList.add('bg-cyan-400', 'text-black', 'font-bold');
-      }
-    }
-
-    /* YOUTUBE IFRAME PLAYER API */
+    /* YOUTUBE IFRAME TRAILER */
     let ytPlayer = null;
-    let progressTimer = null;
-    const sciFiVideoId = "LembwKDo1Dk";
-
     function onYouTubeIframeAPIReady() {
-      ytPlayer = new YT.Player('yt-player-container', {
-        videoId: sciFiVideoId,
-        playerVars: {
-          'autoplay': 0,
-          'controls': 0,
-          'rel': 0,
-          'modestbranding': 1,
-          'enablejsapi': 1
-        },
-        events: {
-          'onStateChange': onPlayerStateChange
-        }
-      });
+      ytPlayer = new YT.Player('yt-player-container', { videoId: 'LembwKDo1Dk', playerVars: { 'autoplay': 0, 'controls': 1 } });
     }
-
     function openTrailerModal() {
-      const modal = document.getElementById('trailer-modal');
-      modal.classList.remove('hidden');
-      modal.classList.add('flex');
-
-      if (isMp3Playing) bgAudio.pause();
-
-      if (ytPlayer && ytPlayer.playVideo) {
-        ytPlayer.playVideo();
-      }
+      document.getElementById('trailer-modal').classList.remove('hidden');
+      document.getElementById('trailer-modal').classList.add('flex');
+      if (ytPlayer && ytPlayer.playVideo) ytPlayer.playVideo();
     }
-
     function closeTrailerModal() {
-      const modal = document.getElementById('trailer-modal');
-      modal.classList.add('hidden');
-      modal.classList.remove('flex');
-
-      if (ytPlayer && ytPlayer.pauseVideo) {
-        ytPlayer.pauseVideo();
-      }
-
-      clearInterval(progressTimer);
-
-      if (isMp3Playing) bgAudio.play();
-    }
-
-    function togglePlayState() {
-      if (!ytPlayer) return;
-      const state = ytPlayer.getPlayerState();
-      if (state === YT.PlayerState.PLAYING) {
-        ytPlayer.pauseVideo();
-      } else {
-        ytPlayer.playVideo();
-      }
-    }
-
-    function stopVideo() {
-      if (!ytPlayer) return;
-      ytPlayer.stopVideo();
-      document.getElementById('progress-bar').value = 0;
-    }
-
-    function toggleVideoMute() {
-      if (!ytPlayer) return;
-      if (ytPlayer.isMuted()) {
-        ytPlayer.unMute();
-        document.getElementById('lbl-mute').innerText = "MUTE";
-      } else {
-        ytPlayer.mute();
-        document.getElementById('lbl-mute').innerText = "UNMUTE";
-      }
-    }
-
-    function changeVideoVolume(val) {
-      if (ytPlayer && ytPlayer.setVolume) {
-        ytPlayer.setVolume(val);
-      }
-    }
-
-    function seekVideo(val) {
-      if (ytPlayer && ytPlayer.getDuration) {
-        const duration = ytPlayer.getDuration();
-        const targetTime = (val / 100) * duration;
-        ytPlayer.seekTo(targetTime, true);
-      }
-    }
-
-    function toggleFullscreen() {
-      const wrapper = document.getElementById('video-wrapper');
-      if (!document.fullscreenElement) {
-        wrapper.requestFullscreen().catch(err => alert("Fullscreen non supportato"));
-      } else {
-        document.exitFullscreen();
-      }
-    }
-
-    function onPlayerStateChange(event) {
-      const lblPlay = document.getElementById('lbl-play');
-      if (event.data === YT.PlayerState.PLAYING) {
-        lblPlay.innerText = "PAUSE";
-        startProgressTracking();
-      } else {
-        lblPlay.innerText = "PLAY";
-        clearInterval(progressTimer);
-      }
-    }
-
-    function startProgressTracking() {
-      clearInterval(progressTimer);
-      progressTimer = setInterval(() => {
-        if (ytPlayer && ytPlayer.getCurrentTime && ytPlayer.getDuration) {
-          const current = ytPlayer.getCurrentTime();
-          const duration = ytPlayer.getDuration();
-          if (duration > 0) {
-            const pct = (current / duration) * 100;
-            document.getElementById('progress-bar').value = pct;
-            document.getElementById('time-current').innerText = formatTime(current);
-            document.getElementById('time-duration').innerText = formatTime(duration);
-          }
-        }
-      }, 500);
-    }
-
-    function formatTime(sec) {
-      const m = Math.floor(sec / 60);
-      const s = Math.floor(sec % 60);
-      return `${m.toString().padStart(2, '0')}:${s.toString().padStart(2, '0')}`;
+      document.getElementById('trailer-modal').classList.add('hidden');
+      document.getElementById('trailer-modal').classList.remove('flex');
+      if (ytPlayer && ytPlayer.pauseVideo) ytPlayer.pauseVideo();
     }
   </script>
 </body>
