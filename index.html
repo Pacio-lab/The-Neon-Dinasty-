@@ -1,0 +1,1716 @@
+<!DOCTYPE html>
+<html lang="en" class="dark scroll-smooth">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no" />
+  <title>NEON DYNASTY — Build the City. Control the Future.</title>
+  <meta name="description" content="Enter Neon Dynasty, a futuristic strategy game set in 2189 where megacorporations control the world’s most powerful megacity. Build skyscrapers, manage energy, research AI, and dominate the skyline." />
+  
+  <!-- Open Graph / Social Metadata -->
+  <meta property="og:title" content="NEON DYNASTY — Build the City. Control the Future." />
+  <meta property="og:description" content="A futuristic strategy & megacity corporate empire management video game set in 2189." />
+  <meta property="og:type" content="website" />
+  <meta name="twitter:card" content="summary_large_image" />
+
+  <!-- Google Fonts -->
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Orbitron:wght@400;600;800;900&family=Rajdhani:wght@400;500;600;700&family=Space+Grotesk:wght@300;400;500;600;700&display=swap" rel="stylesheet" />
+
+  <!-- Tailwind CSS CDN -->
+  <script src="https://cdn.tailwindcss.com"></script>
+  <script>
+    tailwind.config = {
+      darkMode: 'class',
+      theme: {
+        extend: {
+          colors: {
+            bgDark: '#050609',
+            graphite: '#101218',
+            darkMetal: '#181C24',
+            cyanAccent: '#00E5FF',
+            magentaAccent: '#FF2BD6',
+            ultraviolet: '#7A4DFF',
+            warningRed: '#FF304F'
+          },
+          fontFamily: {
+            display: ['Orbitron', 'sans-serif'],
+            tech: ['Rajdhani', 'sans-serif'],
+            body: ['Space Grotesk', 'sans-serif']
+          }
+        }
+      }
+    }
+  </script>
+
+  <!-- Lucide Icons -->
+  <script src="https://unpkg.com/lucide@latest"></script>
+
+  <style>
+    /* Global Styling & Cyberpunk Atmosphere */
+    ::-webkit-scrollbar { width: 6px; height: 6px; }
+    ::-webkit-scrollbar-track { background: #050609; }
+    ::-webkit-scrollbar-thumb { background: #181C24; border: 1px solid #00E5FF33; border-radius: 3px; }
+    ::-webkit-scrollbar-thumb:hover { background: #00E5FFaa; }
+
+    body {
+      background-color: #050609;
+      color: #e2e8f0;
+      font-family: 'Space Grotesk', sans-serif;
+      overflow-x: hidden;
+      touch-action: manipulation;
+    }
+
+    /* HUD Brackets & Glassmorphism */
+    .hud-box {
+      position: relative;
+      background: rgba(16, 18, 24, 0.85);
+      border: 1px solid rgba(0, 229, 255, 0.2);
+      backdrop-filter: blur(12px);
+    }
+    .hud-box::before {
+      content: '';
+      position: absolute;
+      top: -1px; left: -1px; width: 8px; height: 8px;
+      border-top: 2px solid #00E5FF; border-left: 2px solid #00E5FF;
+    }
+    .hud-box::after {
+      content: '';
+      position: absolute;
+      bottom: -1px; right: -1px; width: 8px; height: 8px;
+      border-bottom: 2px solid #00E5FF; border-right: 2px solid #00E5FF;
+    }
+
+    .hud-box-magenta {
+      position: relative;
+      background: rgba(16, 18, 24, 0.85);
+      border: 1px solid rgba(255, 43, 214, 0.2);
+      backdrop-filter: blur(12px);
+    }
+    .hud-box-magenta::before {
+      content: '';
+      position: absolute;
+      top: -1px; left: -1px; width: 8px; height: 8px;
+      border-top: 2px solid #FF2BD6; border-left: 2px solid #FF2BD6;
+    }
+    .hud-box-magenta::after {
+      content: '';
+      position: absolute;
+      bottom: -1px; right: -1px; width: 8px; height: 8px;
+      border-bottom: 2px solid #FF2BD6; border-right: 2px solid #FF2BD6;
+    }
+
+    /* CRT Overlay Scanlines */
+    .scanlines {
+      background: linear-gradient(rgba(18, 16, 16, 0) 50%, rgba(0, 0, 0, 0.25) 50%), linear-gradient(90deg, rgba(255, 0, 0, 0.03), rgba(0, 255, 0, 0.01), rgba(0, 0, 255, 0.03));
+      background-size: 100% 4px, 6px 100%;
+      pointer-events: none;
+    }
+
+    .glow-cyan { text-shadow: 0 0 12px rgba(0, 229, 255, 0.6); }
+    .glow-magenta { text-shadow: 0 0 12px rgba(255, 43, 214, 0.6); }
+    .box-glow-cyan { box-shadow: 0 0 18px rgba(0, 229, 255, 0.25); }
+    .box-glow-magenta { box-shadow: 0 0 18px rgba(255, 43, 214, 0.25); }
+
+    /* Custom Desktop Cursor */
+    @media (min-width: 1024px) {
+      .custom-cursor {
+        width: 14px; height: 14px;
+        border: 2px solid #00E5FF;
+        border-radius: 50%;
+        position: fixed;
+        pointer-events: none;
+        z-index: 9999;
+        transform: translate(-50%, -50%);
+        transition: transform 0.08s ease-out, width 0.2s, height 0.2s, background-color 0.2s;
+      }
+      .custom-cursor.hovered {
+        width: 30px; height: 30px;
+        background-color: rgba(0, 229, 255, 0.15);
+        border-color: #FF2BD6;
+      }
+    }
+
+    /* Map District SVG Pulse & Highlighting */
+    .district-poly {
+      transition: all 0.3s ease;
+      cursor: pointer;
+    }
+    .district-poly:hover, .district-poly.active {
+      fill-opacity: 0.55;
+      stroke-width: 2.5;
+      filter: drop-shadow(0 0 10px currentColor);
+    }
+  </style>
+</head>
+<body class="bg-bgDark text-slate-200 antialiased selection:bg-cyanAccent selection:text-black">
+
+  <!-- Desktop Custom Pointer Cursor -->
+  <div id="cursor" class="custom-cursor hidden lg:block"></div>
+
+  <!-- Ambient Scanlines HUD Layer -->
+  <div id="scanline-overlay" class="fixed inset-0 scanlines z-40 opacity-30 pointer-events-none"></div>
+
+  <!-- WEB AUDIO SYNTHESIZER SOUND ENGINE -->
+  <script>
+    class SoundEngine {
+      constructor() {
+        this.ctx = null;
+        this.enabled = false;
+      }
+      init() {
+        if (!this.ctx) {
+          const AudioCtx = window.AudioContext || window.webkitAudioContext;
+          if (AudioCtx) this.ctx = new AudioCtx();
+        }
+      }
+      toggle() {
+        this.enabled = !this.enabled;
+        if (this.enabled) {
+          this.init();
+          this.playTone(880, 'sine', 0.08, 0.04);
+        }
+        return this.enabled;
+      }
+      playTone(freq, type = 'sine', duration = 0.08, vol = 0.04) {
+        if (!this.enabled || !this.ctx) return;
+        try {
+          const osc = this.ctx.createOscillator();
+          const gain = this.ctx.createGain();
+          osc.type = type;
+          osc.frequency.setValueAtTime(freq, this.ctx.currentTime);
+          gain.gain.setValueAtTime(vol, this.ctx.currentTime);
+          gain.gain.exponentialRampToValueAtTime(0.0001, this.ctx.currentTime + duration);
+          osc.connect(gain);
+          gain.connect(this.ctx.destination);
+          osc.start();
+          osc.stop(this.ctx.currentTime + duration);
+        } catch (e) {}
+      }
+      click() { this.playTone(1200, 'sine', 0.04, 0.03); }
+      scan() { this.playTone(440, 'sawtooth', 0.12, 0.02); }
+      alarm() { 
+        this.playTone(300, 'square', 0.15, 0.05); 
+        setTimeout(() => this.playTone(250, 'square', 0.15, 0.05), 140);
+      }
+      upgrade() {
+        if (!this.enabled || !this.ctx) return;
+        [523.25, 659.25, 783.99, 1046.50].forEach((freq, idx) => {
+          setTimeout(() => this.playTone(freq, 'triangle', 0.1, 0.04), idx * 60);
+        });
+      }
+    }
+    const audio = new SoundEngine();
+  </script>
+
+  <!-- BOOT SEQUENCE OVERLAY MODULE -->
+  <div id="boot-screen" class="fixed inset-0 bg-bgDark z-[100] flex flex-col items-center justify-center p-6 select-none font-tech">
+    <div class="w-full max-w-md flex flex-col items-center space-y-6">
+      <div class="w-full h-0.5 bg-gradient-to-r from-transparent via-cyanAccent to-transparent animate-pulse"></div>
+      
+      <div class="text-center space-y-2">
+        <h1 class="font-display text-2xl md:text-3xl font-black tracking-widest text-white glow-cyan">NEON DYNASTY</h1>
+        <p class="text-xs text-cyanAccent tracking-widest uppercase">Corporate Network // System Initialization</p>
+      </div>
+
+      <!-- Loading Bar -->
+      <div class="w-full bg-graphite border border-slate-800 h-3 rounded-none overflow-hidden relative p-0.5">
+        <div id="boot-progress" class="h-full bg-gradient-to-r from-cyanAccent via-magentaAccent to-ultraviolet w-0 transition-all duration-300 ease-out"></div>
+      </div>
+
+      <!-- Live Terminal Boot Messages -->
+      <div id="boot-log" class="text-xs text-slate-400 font-mono h-12 flex flex-col items-center justify-center text-center">
+        <span>INITIALIZING QUANTUM CORE...</span>
+      </div>
+
+      <div class="flex items-center justify-between w-full text-[10px] text-slate-500 uppercase tracking-wider">
+        <span>SECURITY CLEARANCE: LEVEL 09</span>
+        <span id="boot-percent">07%</span>
+      </div>
+
+      <button id="skip-boot-btn" class="mt-4 px-4 py-1.5 text-xs text-slate-400 hover:text-cyanAccent border border-slate-800 hover:border-cyanAccent transition-all hud-box">
+        SKIP BOOT [ESC]
+      </button>
+    </div>
+  </div>
+
+  <!-- GLOBAL NETWORK HEADER BAR -->
+  <header id="main-header" class="fixed top-0 left-0 right-0 z-50 bg-bgDark/90 backdrop-blur-md border-b border-slate-800/80 transition-transform duration-300">
+    <div class="max-w-7xl mx-auto px-4 py-2.5 flex items-center justify-between">
+      
+      <!-- Brand Logo & Easter Egg Trigger -->
+      <div id="brand-logo" class="flex items-center gap-3 cursor-pointer group select-none">
+        <div class="w-8 h-8 bg-graphite border border-cyanAccent/50 flex items-center justify-center text-cyanAccent font-display font-black text-sm group-hover:box-glow-cyan transition-all">
+          ND
+        </div>
+        <div>
+          <span class="font-display font-black tracking-wider text-sm md:text-base text-white group-hover:text-cyanAccent transition-colors">NEON DYNASTY</span>
+          <span class="block text-[9px] font-tech text-cyanAccent tracking-widest uppercase -mt-1 hidden sm:block">SYS.2189 // NETWORK ONLINE</span>
+        </div>
+      </div>
+
+      <!-- Live Simulated Game Resources Dashboard -->
+      <div class="hidden xl:flex items-center gap-5 text-xs font-tech">
+        <div class="flex items-center gap-2 bg-graphite/80 px-3 py-1.5 border border-slate-800">
+          <i data-lucide="coins" class="w-3.5 h-3.5 text-cyanAccent"></i>
+          <span class="text-slate-400">CREDITS:</span>
+          <span id="res-credits" class="text-white font-mono font-bold">€ 842,190,440</span>
+          <span class="text-[10px] text-emerald-400">+€12.4K/m</span>
+        </div>
+        <div class="flex items-center gap-2 bg-graphite/80 px-3 py-1.5 border border-slate-800">
+          <i data-lucide="zap" class="w-3.5 h-3.5 text-yellow-400"></i>
+          <span class="text-slate-400">ENERGY:</span>
+          <span id="res-energy" class="text-white font-mono font-bold">87%</span>
+        </div>
+        <div class="flex items-center gap-2 bg-graphite/80 px-3 py-1.5 border border-slate-800">
+          <i data-lucide="shield" class="w-3.5 h-3.5 text-magentaAccent"></i>
+          <span class="text-slate-400">INFLUENCE:</span>
+          <span id="res-influence" class="text-white font-mono font-bold">64%</span>
+        </div>
+        <div class="flex items-center gap-2 bg-graphite/80 px-3 py-1.5 border border-slate-800">
+          <i data-lucide="cpu" class="w-3.5 h-3.5 text-ultraviolet"></i>
+          <span class="text-slate-400">RESEARCH:</span>
+          <span id="res-research" class="text-white font-mono font-bold">72%</span>
+        </div>
+      </div>
+
+      <!-- Navigation & Audio Control -->
+      <div class="flex items-center gap-3">
+        <!-- Audio Synthesizer Toggle -->
+        <button id="audio-toggle-btn" class="p-2 bg-graphite border border-slate-800 text-slate-400 hover:text-cyanAccent hover:border-cyanAccent transition-all hud-box" title="Toggle Audio Synthesizer">
+          <i id="audio-icon" data-lucide="volume-x" class="w-4 h-4"></i>
+        </button>
+
+        <!-- Desktop Navigation Links -->
+        <nav class="hidden md:flex items-center gap-1 font-tech text-xs tracking-wider">
+          <a href="#city-map" class="px-3 py-1.5 text-slate-300 hover:text-cyanAccent transition-colors">CITY MAP</a>
+          <a href="#empire-build" class="px-3 py-1.5 text-slate-300 hover:text-cyanAccent transition-colors">BUILD</a>
+          <a href="#tech-tree" class="px-3 py-1.5 text-slate-300 hover:text-cyanAccent transition-colors">TECH TREE</a>
+          <a href="#factions" class="px-3 py-1.5 text-slate-300 hover:text-cyanAccent transition-colors">FACTIONS</a>
+          <a href="#dossier" class="px-3 py-1.5 text-slate-300 hover:text-cyanAccent transition-colors">INTEL</a>
+          <a href="#market" class="px-3 py-1.5 text-slate-300 hover:text-cyanAccent transition-colors">MARKET</a>
+        </nav>
+
+        <!-- Pre-Register Action Button -->
+        <a href="#preregister" class="px-4 py-1.5 bg-gradient-to-r from-cyanAccent to-blue-600 text-black font-display font-bold text-xs uppercase tracking-wider hover:opacity-90 transition-all box-glow-cyan">
+          PRE-REGISTER
+        </a>
+      </div>
+    </div>
+  </header>
+
+  <!-- MAIN SYSTEM CONTENT MODULES -->
+  <main class="relative pt-12 pb-24 md:pb-12">
+
+    <!-- 01 HERO SECTION WITH CANVAS MEGACITY -->
+    <section id="hero" class="relative min-h-screen flex items-center justify-center overflow-hidden border-b border-slate-800/60">
+      <!-- HTML5 Procedural Megacity Canvas Background -->
+      <canvas id="city-canvas" class="absolute inset-0 w-full h-full pointer-events-none z-0"></canvas>
+
+      <!-- Atmospheric Fog & Gradient Masks -->
+      <div class="absolute inset-0 bg-gradient-to-t from-bgDark via-bgDark/40 to-transparent z-10"></div>
+      <div class="absolute inset-0 bg-gradient-to-r from-bgDark/80 via-transparent to-bgDark/80 z-10"></div>
+
+      <!-- Hero Overlays -->
+      <div id="hero-content" class="relative z-20 max-w-5xl mx-auto px-4 text-center space-y-8 py-20 transition-transform duration-200 ease-out">
+        
+        <!-- Status Badge -->
+        <div class="inline-flex items-center gap-2 px-3 py-1 bg-graphite/90 border border-cyanAccent/40 text-cyanAccent text-xs font-tech tracking-widest uppercase hud-box">
+          <span class="w-2 h-2 rounded-full bg-cyanAccent animate-ping"></span>
+          2189 // CORPORATE ERA DIRECTIVE
+        </div>
+
+        <!-- Title & Tagline -->
+        <div class="space-y-3">
+          <h1 class="font-display font-black text-4xl sm:text-6xl md:text-8xl tracking-wider text-transparent bg-clip-text bg-gradient-to-b from-white via-slate-200 to-slate-500 glow-cyan">
+            NEON DYNASTY
+          </h1>
+          <p class="font-display text-lg sm:text-2xl md:text-3xl text-cyanAccent font-bold tracking-widest uppercase glow-cyan">
+            BUILD THE CITY. CONTROL THE FUTURE.
+          </p>
+        </div>
+
+        <!-- Narrative Intro Copy -->
+        <p class="max-w-2xl mx-auto text-sm md:text-base text-slate-300 font-body leading-relaxed">
+          Governments have fallen. Sovereign megacorporations rule the industrial skyline. 
+          As Executive Director of a rising corporate empire, construct vast districts, deploy synthetic AI, manipulate black markets, and wage corporate espionage in the year 2189.
+        </p>
+
+        <!-- CTA Buttons -->
+        <div class="flex flex-col sm:flex-row items-center justify-center gap-4 pt-4">
+          <a href="#city-map" onclick="audio.click()" class="w-full sm:w-auto px-8 py-4 bg-cyanAccent text-black font-display font-bold text-sm tracking-widest uppercase hover:bg-white hover:box-glow-cyan transition-all hud-box text-center">
+            ENTER THE CITY
+          </a>
+          <button id="open-trailer-btn" onclick="audio.click()" class="w-full sm:w-auto px-8 py-4 bg-graphite/90 border border-slate-700 text-white font-display font-bold text-sm tracking-widest uppercase hover:border-magentaAccent hover:text-magentaAccent transition-all hud-box-magenta flex items-center justify-center gap-2">
+            <i data-lucide="play-circle" class="w-4 h-4 text-magentaAccent"></i>
+            WATCH TRAILER
+          </button>
+        </div>
+
+        <!-- Live City System Status Indicators -->
+        <div class="pt-12 grid grid-cols-2 md:grid-cols-4 gap-4 max-w-4xl mx-auto font-tech text-xs">
+          <div class="bg-graphite/60 p-3 border border-slate-800 text-left">
+            <span class="text-slate-500 block uppercase">CITY NETWORK</span>
+            <span class="text-cyanAccent font-bold">ONLINE // 99.8% UP</span>
+          </div>
+          <div class="bg-graphite/60 p-3 border border-slate-800 text-left">
+            <span class="text-slate-500 block uppercase">ACTIVE SECTOR</span>
+            <span class="text-white font-bold">METRO CORE 01</span>
+          </div>
+          <div class="bg-graphite/60 p-3 border border-slate-800 text-left">
+            <span class="text-slate-500 block uppercase">POPULATION</span>
+            <span class="text-magentaAccent font-bold">87.4 MILLION</span>
+          </div>
+          <div class="bg-graphite/60 p-3 border border-slate-800 text-left">
+            <span class="text-slate-500 block uppercase">THREAT LEVEL</span>
+            <span class="text-yellow-400 font-bold">MODERATE // DEFCON 3</span>
+          </div>
+        </div>
+
+      </div>
+    </section>
+
+    <!-- 02 CITY INTRODUCTION & ANIMATED COUNTERS -->
+    <section class="py-20 border-b border-slate-800/60 bg-graphite/30 relative">
+      <div class="max-w-7xl mx-auto px-4">
+        
+        <div class="grid grid-cols-1 lg:grid-cols-2 gap-12 items-center">
+          <div class="space-y-6">
+            <div class="inline-block px-3 py-1 bg-magentaAccent/10 border border-magentaAccent/30 text-magentaAccent font-tech text-xs tracking-widest uppercase">
+              DISTRICT SYNOPSIS // 2189
+            </div>
+            <h2 class="font-display font-black text-3xl md:text-5xl text-white tracking-wide">
+              THE CITY IS ALIVE.
+            </h2>
+            <blockquote class="border-l-2 border-cyanAccent pl-4 text-lg text-cyanAccent italic font-tech">
+              “2189. Humanity no longer builds cities for people. Corporations build cities for power.”
+            </blockquote>
+            <p class="text-slate-300 font-body leading-relaxed text-sm md:text-base">
+              Every building, power line, and synthetic nerve ending inside Neon Dynasty operates in a hyper-connected real-time simulation. Manage municipal power grids, neutralize rival corporate spies, optimize trade routes, and suppress civil unrest across 8 mega-districts.
+            </p>
+          </div>
+
+          <!-- Animated Numerical Counters Grid -->
+          <div class="grid grid-cols-2 gap-6" id="stats-counter-grid">
+            <div class="bg-darkMetal/80 p-6 border border-slate-800 hud-box space-y-2">
+              <span class="font-tech text-xs text-cyanAccent tracking-widest uppercase">DISTRICTS</span>
+              <div class="font-display font-black text-4xl text-white counter" data-target="12">0</div>
+              <p class="text-xs text-slate-400">Autonomous metropolitan sectors under management.</p>
+            </div>
+            <div class="bg-darkMetal/80 p-6 border border-slate-800 hud-box space-y-2">
+              <span class="font-tech text-xs text-magentaAccent tracking-widest uppercase">CITIZENS</span>
+              <div class="font-display font-black text-4xl text-white counter" data-target="87.4">0</div>
+              <p class="text-xs text-slate-400">Registered workforce & augmentees (M).</p>
+            </div>
+            <div class="bg-darkMetal/80 p-6 border border-slate-800 hud-box space-y-2">
+              <span class="font-tech text-xs text-yellow-400 tracking-widest uppercase">ANNUAL ECONOMY</span>
+              <div class="font-display font-black text-4xl text-white counter" data-target="9.4">0</div>
+              <p class="text-xs text-slate-400">Trillion Euros gross corporate output.</p>
+            </div>
+            <div class="bg-darkMetal/80 p-6 border border-slate-800 hud-box space-y-2">
+              <span class="font-tech text-xs text-ultraviolet tracking-widest uppercase">ASSETS</span>
+              <div class="font-display font-black text-4xl text-white counter" data-target="3821">0</div>
+              <p class="text-xs text-slate-400">Towers, factories, and orbital relays active.</p>
+            </div>
+          </div>
+
+        </div>
+
+      </div>
+    </section>
+
+    <!-- 03 INTERACTIVE STRATEGIC CITY MAP -->
+    <section id="city-map" class="py-20 border-b border-slate-800/60 relative">
+      <div class="max-w-7xl mx-auto px-4 space-y-8">
+        
+        <div class="flex flex-col md:flex-row md:items-end justify-between gap-4">
+          <div>
+            <div class="inline-block px-3 py-1 bg-cyanAccent/10 border border-cyanAccent/30 text-cyanAccent font-tech text-xs tracking-widest uppercase">
+              TACTICAL MAP // LEVEL 09
+            </div>
+            <h2 class="font-display font-black text-3xl md:text-4xl text-white tracking-wide mt-2">
+              METROPOLITAN MAP
+            </h2>
+          </div>
+          <p class="text-xs font-tech text-slate-400 uppercase tracking-wider">
+            SELECT A DISTRICT TO INSPECT METRICS & CONTROL STATUS
+          </p>
+        </div>
+
+        <div class="grid grid-cols-1 lg:grid-cols-12 gap-8 items-start">
+          
+          <!-- Vector Map SVG Viewport -->
+          <div class="lg:col-span-8 bg-darkMetal/90 border border-slate-800 p-4 relative hud-box min-h-[380px] md:min-h-[480px] flex items-center justify-center overflow-hidden">
+            
+            <!-- Grid Pattern -->
+            <div class="absolute inset-0 opacity-20 bg-[radial-gradient(#00E5FF_1px,transparent_1px)] [background-size:16px_16px]"></div>
+
+            <svg viewBox="0 0 800 600" class="w-full h-auto z-10 max-h-[500px]">
+              <!-- District Polygons -->
+              <!-- 01 Central Core -->
+              <polygon id="poly-1" points="350,180 450,180 490,260 410,320 330,270" fill="#00E5FF" fill-opacity="0.2" stroke="#00E5FF" stroke-width="1.5" class="district-poly active" onclick="selectDistrict(1)" />
+              <text x="400" y="240" fill="#ffffff" font-family="Orbitron" font-size="12" font-weight="bold" text-anchor="middle" pointer-events="none">01 CENTRAL CORE</text>
+
+              <!-- 02 Neon Market -->
+              <polygon id="poly-2" points="450,180 560,150 610,230 490,260" fill="#FF2BD6" fill-opacity="0.2" stroke="#FF2BD6" stroke-width="1.5" class="district-poly" onclick="selectDistrict(2)" />
+              <text x="525" y="205" fill="#ffffff" font-family="Orbitron" font-size="11" text-anchor="middle" pointer-events="none">02 NEON MARKET</text>
+
+              <!-- 03 Corporate Heights -->
+              <polygon id="poly-3" points="260,110 380,100 350,180 280,200" fill="#7A4DFF" fill-opacity="0.2" stroke="#7A4DFF" stroke-width="1.5" class="district-poly" onclick="selectDistrict(3)" />
+              <text x="320" y="145" fill="#ffffff" font-family="Orbitron" font-size="11" text-anchor="middle" pointer-events="none">03 CORP HEIGHTS</text>
+
+              <!-- 04 Industrial Belt -->
+              <polygon id="poly-4" points="410,320 520,310 570,410 430,420" fill="#FF304F" fill-opacity="0.2" stroke="#FF304F" stroke-width="1.5" class="district-poly" onclick="selectDistrict(4)" />
+              <text x="480" y="365" fill="#ffffff" font-family="Orbitron" font-size="11" text-anchor="middle" pointer-events="none">04 INDUSTRIAL BELT</text>
+
+              <!-- 05 Undercity -->
+              <polygon id="poly-5" points="230,270 330,270 410,320 310,390 210,340" fill="#00E5FF" fill-opacity="0.15" stroke="#00E5FF" stroke-width="1.5" class="district-poly" onclick="selectDistrict(5)" />
+              <text x="290" y="325" fill="#ffffff" font-family="Orbitron" font-size="11" text-anchor="middle" pointer-events="none">05 UNDERCITY</text>
+
+              <!-- 06 Blackwater -->
+              <polygon id="poly-6" points="150,340 210,340 310,390 260,480 140,430" fill="#7A4DFF" fill-opacity="0.2" stroke="#7A4DFF" stroke-width="1.5" class="district-poly" onclick="selectDistrict(6)" />
+              <text x="210" y="415" fill="#ffffff" font-family="Orbitron" font-size="11" text-anchor="middle" pointer-events="none">06 BLACKWATER</text>
+
+              <!-- 07 Skyport -->
+              <polygon id="poly-7" points="560,150 680,180 710,280 610,230" fill="#FF2BD6" fill-opacity="0.2" stroke="#FF2BD6" stroke-width="1.5" class="district-poly" onclick="selectDistrict(7)" />
+              <text x="640" y="210" fill="#ffffff" font-family="Orbitron" font-size="11" text-anchor="middle" pointer-events="none">07 SKYPORT</text>
+
+              <!-- 08 Biozone -->
+              <polygon id="poly-8" points="430,420 570,410 620,510 450,520" fill="#00E5FF" fill-opacity="0.2" stroke="#00E5FF" stroke-width="1.5" class="district-poly" onclick="selectDistrict(8)" />
+              <text x="510" y="465" fill="#ffffff" font-family="Orbitron" font-size="11" text-anchor="middle" pointer-events="none">08 BIOZONE</text>
+            </svg>
+
+            <!-- Coordinates Label -->
+            <div class="absolute bottom-3 left-3 bg-graphite/90 px-3 py-1.5 border border-slate-800 text-[10px] font-tech text-slate-400">
+              COORDINATES: <span class="text-cyanAccent font-mono">34.89°N // 118.24°W</span>
+            </div>
+          </div>
+
+          <!-- District Inspector Panel -->
+          <div id="district-panel" class="lg:col-span-4 bg-darkMetal p-6 border border-slate-800 hud-box space-y-6">
+            <!-- Dynamic Content Injected via JS -->
+          </div>
+
+        </div>
+
+      </div>
+    </section>
+
+    <!-- 04 EMPIRE BUILD SYSTEM -->
+    <section id="empire-build" class="py-20 border-b border-slate-800/60 bg-graphite/20">
+      <div class="max-w-7xl mx-auto px-4 space-y-8">
+        
+        <div class="flex flex-col md:flex-row md:items-end justify-between gap-4">
+          <div>
+            <div class="inline-block px-3 py-1 bg-magentaAccent/10 border border-magentaAccent/30 text-magentaAccent font-tech text-xs tracking-widest uppercase">
+              INFRASTRUCTURE MODULE
+            </div>
+            <h2 class="font-display font-black text-3xl md:text-4xl text-white tracking-wide mt-2">
+              BUILD YOUR EMPIRE
+            </h2>
+          </div>
+          
+          <!-- Category Tabs -->
+          <div id="building-tabs" class="flex flex-wrap gap-2 font-tech text-xs">
+            <!-- Injected via JS -->
+          </div>
+        </div>
+
+        <!-- Buildings Grid -->
+        <div id="buildings-grid" class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+          <!-- Injected via JS -->
+        </div>
+
+      </div>
+    </section>
+
+    <!-- 05 TECHNOLOGY TREE -->
+    <section id="tech-tree" class="py-20 border-b border-slate-800/60 relative">
+      <div class="max-w-7xl mx-auto px-4 space-y-8">
+        
+        <div class="text-center space-y-2 max-w-2xl mx-auto">
+          <div class="inline-block px-3 py-1 bg-cyanAccent/10 border border-cyanAccent/30 text-cyanAccent font-tech text-xs tracking-widest uppercase">
+            RESEARCH & DEVELOPMENT
+          </div>
+          <h2 class="font-display font-black text-3xl md:text-5xl text-white tracking-wide">
+            THE FUTURE IS ENGINEERED.
+          </h2>
+          <p class="text-slate-400 text-xs md:text-sm">
+            Unlock cybernetic augmentations, quantum AI routines, and plasma grid relays to dominate corporate competition.
+          </p>
+        </div>
+
+        <!-- Tech Tree Grid -->
+        <div id="tech-grid" class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6 pt-6">
+          <!-- Injected via JS -->
+        </div>
+
+      </div>
+    </section>
+
+    <!-- 06 CORPORATIONS & FACTION RELATIONSHIPS -->
+    <section id="factions" class="py-20 border-b border-slate-800/60 bg-graphite/30">
+      <div class="max-w-7xl mx-auto px-4 space-y-12">
+        
+        <div class="flex flex-col md:flex-row md:items-end justify-between gap-4">
+          <div>
+            <div class="inline-block px-3 py-1 bg-ultraviolet/20 border border-ultraviolet/40 text-ultraviolet font-tech text-xs tracking-widest uppercase">
+              DIPLOMATIC MATRIX
+            </div>
+            <h2 class="font-display font-black text-3xl md:text-4xl text-white tracking-wide mt-2">
+              MEGACORPORATIONS
+            </h2>
+          </div>
+          <p class="text-xs font-tech text-slate-400 uppercase tracking-wider">
+            DIPLOMATIC & ESPIONAGE NETWORK
+          </p>
+        </div>
+
+        <!-- Factions Grid -->
+        <div id="factions-container" class="grid grid-cols-1 lg:grid-cols-2 gap-8">
+          <!-- Injected via JS -->
+        </div>
+
+        <!-- Terminal Log Feed -->
+        <div class="bg-black border border-slate-800 p-4 font-mono text-xs text-slate-400 space-y-2 hud-box">
+          <div class="flex items-center justify-between border-b border-slate-800 pb-2 text-[10px] text-cyanAccent">
+            <span>CORPORATE DIPLOMATIC FEED</span>
+            <span>SECURE ENCRYPTED CHANNEL</span>
+          </div>
+          <div id="faction-terminal-log" class="h-24 overflow-y-auto space-y-1">
+            <p><span class="text-slate-600">[11:28:02]</span> Channel opened with NEXUS INDUSTRIES. Standby for diplomatic transmission...</p>
+          </div>
+        </div>
+
+      </div>
+    </section>
+
+    <!-- 07 CHARACTERS DOSSIERS -->
+    <section id="dossier" class="py-20 border-b border-slate-800/60">
+      <div class="max-w-7xl mx-auto px-4 space-y-8">
+        
+        <div class="text-center space-y-2 max-w-2xl mx-auto">
+          <div class="inline-block px-3 py-1 bg-magentaAccent/10 border border-magentaAccent/30 text-magentaAccent font-tech text-xs tracking-widest uppercase">
+            CLASSIFIED PERSONNEL
+          </div>
+          <h2 class="font-display font-black text-3xl md:text-4xl text-white tracking-wide">
+            EXECUTIVE DOSSIERS
+          </h2>
+        </div>
+
+        <div id="character-grid" class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-5 gap-6">
+          <!-- Injected via JS -->
+        </div>
+
+      </div>
+    </section>
+
+    <!-- 08 SEARCHABLE INTELLIGENCE DATABASE -->
+    <section id="intel-db" class="py-20 border-b border-slate-800/60 bg-graphite/20">
+      <div class="max-w-7xl mx-auto px-4 space-y-8">
+        
+        <div class="flex flex-col md:flex-row md:items-center justify-between gap-6">
+          <div>
+            <div class="inline-block px-3 py-1 bg-cyanAccent/10 border border-cyanAccent/30 text-cyanAccent font-tech text-xs tracking-widest uppercase">
+              ARCHIVE // CLEARANCE 09
+            </div>
+            <h2 class="font-display font-black text-3xl md:text-4xl text-white tracking-wide mt-1">
+              CORPORATE INTELLIGENCE
+            </h2>
+          </div>
+
+          <!-- Dynamic Search Input -->
+          <div class="flex items-center gap-3 w-full md:w-auto">
+            <div class="relative flex-1 md:w-80">
+              <i data-lucide="search" class="w-4 h-4 text-slate-500 absolute left-3 top-1/2 -translate-y-1/2"></i>
+              <input id="db-search-input" type="text" placeholder="SEARCH DATABASE... (e.g. 'VOID')" class="w-full bg-graphite border border-slate-800 pl-9 pr-4 py-2 text-xs font-tech text-white focus:outline-none focus:border-cyanAccent transition-all hud-box" />
+            </div>
+          </div>
+        </div>
+
+        <!-- Filter Category Tabs -->
+        <div id="db-tabs" class="flex flex-wrap gap-2 text-xs font-tech">
+          <!-- Injected via JS -->
+        </div>
+
+        <!-- Database Cards Grid -->
+        <div id="db-grid" class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+          <!-- Injected via JS -->
+        </div>
+
+      </div>
+    </section>
+
+    <!-- 09 RANDOM CITY EVENT FEED -->
+    <section class="py-12 border-b border-slate-800/60 bg-black/50 font-tech">
+      <div class="max-w-7xl mx-auto px-4 space-y-4">
+        <div class="flex items-center justify-between text-xs text-slate-400 border-b border-slate-800 pb-2">
+          <span class="text-cyanAccent font-bold flex items-center gap-2">
+            <span class="w-2 h-2 rounded-full bg-red-500 animate-pulse"></span>
+            LIVE CITY EVENT FEED
+          </span>
+          <span class="text-[10px] uppercase">AUTO-SYNCED TO METRO NETWORK</span>
+        </div>
+
+        <div id="city-events-feed" class="grid grid-cols-1 md:grid-cols-2 gap-4">
+          <!-- Dynamic Event Cards Injected via JS -->
+        </div>
+      </div>
+    </section>
+
+    <!-- 10 COMMODITIES MARKET -->
+    <section id="market" class="py-20 border-b border-slate-800/60">
+      <div class="max-w-7xl mx-auto px-4 space-y-8">
+        
+        <div class="flex flex-col md:flex-row md:items-end justify-between gap-4">
+          <div>
+            <div class="inline-block px-3 py-1 bg-yellow-400/10 border border-yellow-400/30 text-yellow-400 font-tech text-xs tracking-widest uppercase">
+              COMMODITIES EXCHANGE
+            </div>
+            <h2 class="font-display font-black text-3xl md:text-4xl text-white tracking-wide mt-2">
+              RESOURCE MARKET
+            </h2>
+          </div>
+          <span class="text-xs font-tech text-slate-400 uppercase">REAL-TIME FLUCTUATION SIMULATOR</span>
+        </div>
+
+        <div id="market-grid" class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+          <!-- Injected via JS -->
+        </div>
+
+      </div>
+    </section>
+
+    <!-- 11 GAMEPLAY SHOWCASE -->
+    <section class="py-20 border-b border-slate-800/60 bg-graphite/30">
+      <div class="max-w-7xl mx-auto px-4 space-y-12">
+        
+        <div class="text-center space-y-2 max-w-2xl mx-auto">
+          <div class="inline-block px-3 py-1 bg-cyanAccent/10 border border-cyanAccent/30 text-cyanAccent font-tech text-xs tracking-widest uppercase">
+            STRATEGIC FREEDOM
+          </div>
+          <h2 class="font-display font-black text-3xl md:text-5xl text-white tracking-wide">
+            ONE CITY. INFINITE POSSIBILITIES.
+          </h2>
+        </div>
+
+        <div class="grid grid-cols-1 md:grid-cols-3 gap-8">
+          
+          <div class="bg-darkMetal border border-slate-800 p-6 hud-box space-y-4 hover:border-cyanAccent transition-all group">
+            <div class="h-48 bg-graphite border border-slate-800 flex items-center justify-center relative overflow-hidden">
+              <div class="absolute inset-0 bg-gradient-to-t from-black via-transparent to-transparent"></div>
+              <i data-lucide="building-2" class="w-16 h-16 text-cyanAccent group-hover:scale-110 transition-transform"></i>
+              <span class="absolute bottom-3 left-3 font-display font-bold text-lg text-white">01 BUILD</span>
+            </div>
+            <p class="text-xs text-slate-300 font-body leading-relaxed">
+              Construct towering corporate headquarters, industrial energy grids, quantum laboratories, and housing complexes across distinct sectors.
+            </p>
+          </div>
+
+          <div class="bg-darkMetal border border-slate-800 p-6 hud-box space-y-4 hover:border-magentaAccent transition-all group">
+            <div class="h-48 bg-graphite border border-slate-800 flex items-center justify-center relative overflow-hidden">
+              <div class="absolute inset-0 bg-gradient-to-t from-black via-transparent to-transparent"></div>
+              <i data-lucide="globe-2" class="w-16 h-16 text-magentaAccent group-hover:scale-110 transition-transform"></i>
+              <span class="absolute bottom-3 left-3 font-display font-bold text-lg text-white">02 EXPAND</span>
+            </div>
+            <p class="text-xs text-slate-300 font-body leading-relaxed">
+              Annex adjacent districts, secure high-value energy corridors, negotiate economic treaties, or destabilize rival corporation stock prices.
+            </p>
+          </div>
+
+          <div class="bg-darkMetal border border-slate-800 p-6 hud-box space-y-4 hover:border-ultraviolet transition-all group">
+            <div class="h-48 bg-graphite border border-slate-800 flex items-center justify-center relative overflow-hidden">
+              <div class="absolute inset-0 bg-gradient-to-t from-black via-transparent to-transparent"></div>
+              <i data-lucide="crosshair" class="w-16 h-16 text-ultraviolet group-hover:scale-110 transition-transform"></i>
+              <span class="absolute bottom-3 left-3 font-display font-bold text-lg text-white">03 DOMINATE</span>
+            </div>
+            <p class="text-xs text-slate-300 font-body leading-relaxed">
+              Deploy security forces, initiate black-market cyber operations, manipulate elections, and enforce absolute control over 87 million citizens.
+            </p>
+          </div>
+
+        </div>
+
+      </div>
+    </section>
+
+    <!-- 12 MEDIA GALLERY & CORPORATE NEWS -->
+    <section class="py-20 border-b border-slate-800/60">
+      <div class="max-w-7xl mx-auto px-4 space-y-12">
+        
+        <!-- Media Gallery -->
+        <div class="space-y-6">
+          <div class="flex flex-col md:flex-row md:items-end justify-between gap-4">
+            <div>
+              <div class="inline-block px-3 py-1 bg-cyanAccent/10 border border-cyanAccent/30 text-cyanAccent font-tech text-xs tracking-widest uppercase">
+                VISUAL ARCHIVE
+              </div>
+              <h2 class="font-display font-black text-3xl text-white tracking-wide mt-1">
+                MEDIA GALLERY
+              </h2>
+            </div>
+            
+            <div id="gallery-tabs" class="flex flex-wrap gap-2 text-xs font-tech">
+              <!-- Injected via JS -->
+            </div>
+          </div>
+
+          <div id="gallery-grid" class="grid grid-cols-2 md:grid-cols-4 gap-4">
+            <!-- Injected via JS -->
+          </div>
+        </div>
+
+        <!-- Corporate News Wire -->
+        <div class="space-y-6 pt-12 border-t border-slate-800">
+          <h3 class="font-display font-bold text-2xl text-white tracking-wide">
+            CORPORATE NEWS WIRE
+          </h3>
+          <div id="news-grid" class="grid grid-cols-1 md:grid-cols-3 gap-6">
+            <!-- Injected via JS -->
+          </div>
+        </div>
+
+      </div>
+    </section>
+
+    <!-- 13 PRE-REGISTRATION & USER EXECUTIVE PROFILE -->
+    <section id="preregister" class="py-20 border-b border-slate-800/60 bg-gradient-to-b from-bgDark via-graphite to-bgDark relative">
+      <div class="max-w-4xl mx-auto px-4 space-y-12">
+        
+        <div class="text-center space-y-3">
+          <div class="inline-block px-3 py-1 bg-cyanAccent/10 border border-cyanAccent/30 text-cyanAccent font-tech text-xs tracking-widest uppercase">
+            EXECUTIVE REGISTRATION // ERA 2189
+          </div>
+          <h2 class="font-display font-black text-4xl md:text-6xl text-white tracking-wide glow-cyan">
+            YOUR CITY. YOUR RULES.
+          </h2>
+          <p class="text-slate-300 font-body text-sm md:text-base max-w-xl mx-auto">
+            Pre-register now to receive executive launch access, exclusive Nexus Industry tower blueprints, and starting capital of €50,000,000.
+          </p>
+        </div>
+
+        <!-- Registration Form -->
+        <div id="registration-container" class="bg-darkMetal p-8 border border-slate-800 hud-box">
+          <form id="prereg-form" class="space-y-6" onsubmit="handleRegistration(event)">
+            <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+              
+              <div class="space-y-2">
+                <label class="block font-tech text-xs text-slate-300 uppercase">EXECUTIVE EMAIL ADDRESS</label>
+                <input type="email" required placeholder="executive@corporate-net.com" class="w-full bg-graphite border border-slate-800 px-4 py-3 text-sm text-white font-tech focus:outline-none focus:border-cyanAccent transition-all hud-box" />
+              </div>
+
+              <div class="space-y-2">
+                <label class="block font-tech text-xs text-slate-300 uppercase">PREFERRED PLATFORM</label>
+                <select class="w-full bg-graphite border border-slate-800 px-4 py-3 text-sm text-white font-tech focus:outline-none focus:border-cyanAccent transition-all hud-box">
+                  <option value="PC">PC // WINDOWS & LINUX</option>
+                  <option value="PS5">PLAYSTATION 5</option>
+                  <option value="XBOX">XBOX SERIES X|S</option>
+                  <option value="MOBILE">MOBILE // iOS & ANDROID</option>
+                </select>
+              </div>
+
+            </div>
+
+            <div class="flex items-center gap-3">
+              <input type="checkbox" id="news-opt" checked class="w-4 h-4 bg-graphite border-slate-800 rounded accent-cyanAccent" />
+              <label for="news-opt" class="text-xs text-slate-400 font-body">I AGREE TO RECEIVE NEON DYNASTY DEVELOPMENT INTEL & EXECUTIVE CLEARANCE ALERTS.</label>
+            </div>
+
+            <button type="submit" onclick="audio.click()" class="w-full py-4 bg-cyanAccent text-black font-display font-black text-sm uppercase tracking-widest hover:bg-white box-glow-cyan transition-all hud-box">
+              JOIN THE NETWORK
+            </button>
+          </form>
+        </div>
+
+        <!-- Executive Profile Display (Active once registered) -->
+        <div id="profile-panel" class="hidden bg-darkMetal/90 p-8 border border-cyanAccent/50 hud-box space-y-6">
+          <div class="flex items-center justify-between border-b border-slate-800 pb-4">
+            <div>
+              <span class="text-xs font-tech text-cyanAccent uppercase tracking-widest">EXECUTIVE PROFILE VERIFIED</span>
+              <h3 id="profile-id-display" class="font-display font-black text-2xl text-white">ND-894102</h3>
+            </div>
+            <span class="px-3 py-1 bg-emerald-500/10 border border-emerald-500/30 text-emerald-400 font-tech text-xs">STATUS: ACTIVE WAITING LIST</span>
+          </div>
+
+          <div class="grid grid-cols-2 md:grid-cols-4 gap-4 font-tech text-xs">
+            <div class="bg-graphite p-3 border border-slate-800">
+              <span class="text-slate-500 block">CLEARANCE</span>
+              <span class="text-white font-bold">LEVEL 01</span>
+            </div>
+            <div class="bg-graphite p-3 border border-slate-800">
+              <span class="text-slate-500 block">STARTING INFLUENCE</span>
+              <span class="text-cyanAccent font-bold">100 RP</span>
+            </div>
+            <div class="bg-graphite p-3 border border-slate-800">
+              <span class="text-slate-500 block">ASSIGNED CITY</span>
+              <span class="text-white font-bold">METRO CORE 01</span>
+            </div>
+            <div class="bg-graphite p-3 border border-slate-800">
+              <span class="text-slate-500 block">BONUS CREDIT ALLOCATION</span>
+              <span class="text-emerald-400 font-bold">€50,000,000</span>
+            </div>
+          </div>
+
+          <div class="flex items-center justify-between pt-2">
+            <div class="flex items-center gap-2">
+              <span class="text-xs text-slate-400 font-tech">DISPLAY NAME:</span>
+              <input id="profile-name-input" type="text" value="EXECUTIVE DIRECTOR" class="bg-graphite border border-slate-800 px-3 py-1 text-xs text-white font-tech focus:border-cyanAccent" onchange="updateProfileName(this.value)" />
+            </div>
+            <button onclick="resetRegistration()" class="text-xs text-rose-400 hover:underline font-tech">RESET REGISTRATION</button>
+          </div>
+        </div>
+
+      </div>
+    </section>
+
+  </main>
+
+  <!-- FOOTER -->
+  <footer class="bg-bgDark border-t border-slate-800/80 py-12 text-slate-400 text-xs font-tech">
+    <div class="max-w-7xl mx-auto px-4 space-y-8">
+      
+      <div class="flex flex-col md:flex-row items-start md:items-center justify-between gap-6 border-b border-slate-800/80 pb-8">
+        <div>
+          <span class="font-display font-black text-xl text-white tracking-wider">NEON DYNASTY</span>
+          <p class="text-cyanAccent text-xs tracking-widest mt-1">BUILD THE CITY. CONTROL THE FUTURE.</p>
+        </div>
+
+        <div class="flex items-center gap-4">
+          <a href="#" class="p-2 bg-graphite border border-slate-800 hover:text-cyanAccent transition-colors"><i data-lucide="disc" class="w-4 h-4"></i></a>
+          <a href="#" class="p-2 bg-graphite border border-slate-800 hover:text-cyanAccent transition-colors"><i data-lucide="youtube" class="w-4 h-4"></i></a>
+          <a href="#" class="p-2 bg-graphite border border-slate-800 hover:text-cyanAccent transition-colors"><i data-lucide="twitter" class="w-4 h-4"></i></a>
+          <a href="#" class="p-2 bg-graphite border border-slate-800 hover:text-cyanAccent transition-colors"><i data-lucide="instagram" class="w-4 h-4"></i></a>
+        </div>
+      </div>
+
+      <div class="flex flex-wrap gap-6 justify-between items-center text-[11px] text-slate-500">
+        <p>© 2189 NEON DYNASTY // FICTIONAL GAME UNIVERSE. ALL RIGHTS RESERVED.</p>
+        <div class="flex gap-4">
+          <a href="#" class="hover:text-slate-300">PRIVACY POLICY</a>
+          <a href="#" class="hover:text-slate-300">TERMS OF SERVICE</a>
+          <a href="#" class="hover:text-slate-300">SECURITY PROTOCOLS</a>
+        </div>
+      </div>
+
+    </div>
+  </footer>
+
+  <!-- MOBILE BOTTOM NAVIGATION BAR -->
+  <div class="md:hidden fixed bottom-0 left-0 right-0 z-50 bg-bgDark/95 border-t border-slate-800 backdrop-blur-md font-tech">
+    <div class="grid grid-cols-5 text-center text-[10px] py-1.5">
+      <a href="#hero" onclick="audio.click()" class="flex flex-col items-center gap-1 text-slate-400 hover:text-cyanAccent">
+        <i data-lucide="home" class="w-4 h-4"></i>
+        <span>HOME</span>
+      </a>
+      <a href="#city-map" onclick="audio.click()" class="flex flex-col items-center gap-1 text-slate-400 hover:text-cyanAccent">
+        <i data-lucide="map" class="w-4 h-4"></i>
+        <span>CITY</span>
+      </a>
+      <a href="#empire-build" onclick="audio.click()" class="flex flex-col items-center gap-1 text-slate-400 hover:text-cyanAccent">
+        <i data-lucide="hammer" class="w-4 h-4"></i>
+        <span>BUILD</span>
+      </a>
+      <a href="#tech-tree" onclick="audio.click()" class="flex flex-col items-center gap-1 text-slate-400 hover:text-cyanAccent">
+        <i data-lucide="cpu" class="w-4 h-4"></i>
+        <span>TECH</span>
+      </a>
+      <a href="#preregister" onclick="audio.click()" class="flex flex-col items-center gap-1 text-slate-400 hover:text-cyanAccent">
+        <i data-lucide="user" class="w-4 h-4"></i>
+        <span>PROFILE</span>
+      </a>
+    </div>
+  </div>
+
+  <!-- TRAILER MODAL -->
+  <div id="trailer-modal" class="fixed inset-0 bg-black/90 z-[100] hidden items-center justify-center p-4">
+    <div class="relative w-full max-w-4xl bg-graphite border border-cyanAccent hud-box p-4 space-y-4">
+      <div class="flex items-center justify-between text-xs font-tech text-cyanAccent">
+        <span>CINEMATIC TRAILER // METRO 2189</span>
+        <button onclick="closeTrailer()" class="text-white hover:text-rose-400 font-bold">CLOSE [X]</button>
+      </div>
+      <div class="relative aspect-video bg-black flex items-center justify-center border border-slate-800">
+        <div class="absolute inset-0 flex flex-col items-center justify-center text-center space-y-2 p-4">
+          <i data-lucide="film" class="w-12 h-12 text-cyanAccent animate-pulse"></i>
+          <p class="font-display font-bold text-white tracking-widest text-sm">NEON DYNASTY GAMEPLAY TRAILER</p>
+          <p class="font-tech text-xs text-slate-400">SIMULATED HIGH-DEFINITION FOOTAGE AVAILABLE AT LAUNCH</p>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- JAVASCRIPT LOGIC ENGINE -->
+  <script>
+    lucide.createIcons();
+
+    /* App State Store */
+    const state = {
+      credits: 842190440,
+      energy: 87,
+      influence: 64,
+      research: 72,
+      selectedDistrict: 1,
+      registered: false,
+      executiveId: null,
+      executiveName: 'EXECUTIVE DIRECTOR',
+      researchedTechs: new Set([1]),
+      buildings: {
+        1: { level: 7 },
+        2: { level: 4 },
+        3: { level: 2 }
+      }
+    };
+
+    if (localStorage.getItem('nd_registered')) {
+      state.registered = true;
+      state.executiveId = localStorage.getItem('nd_exec_id');
+      state.executiveName = localStorage.getItem('nd_exec_name') || 'EXECUTIVE DIRECTOR';
+    }
+
+    /* Districts Data */
+    const districtsData = [
+      { id: 1, name: "CENTRAL CORE", pop: "12.8M", security: "94%", energy: "88%", influence: "76%", value: "€2.4T", resource: "FINANCE", status: "CONTROLLED", desc: "The financial backbone of Neon Dynasty, housing high-frequency trading arrays and corporate bank vaults." },
+      { id: 2, name: "NEON MARKET", pop: "18.2M", security: "62%", energy: "74%", influence: "82%", value: "€1.8T", resource: "COMMERCE", status: "CONTESTED", desc: "A sprawling multi-level bazaar of black-market cyberware, synthetic stimulants, and corporate data hubs." },
+      { id: 3, name: "CORPORATE HEIGHTS", pop: "4.1M", security: "98%", energy: "95%", influence: "91%", value: "€3.1T", resource: "EXECUTIVE", status: "CONTROLLED", desc: "Luxurious sky-towers soaring above the cloud layer, housing corporate boardrooms and orbital relays." },
+      { id: 4, name: "INDUSTRIAL BELT", pop: "15.6M", security: "71%", energy: "60%", influence: "54%", value: "€1.2T", resource: "MANUFACTURING", status: "DISPUTED", desc: "Heavy automated factories, fusion foundries, and drone assembly plants stretching across south sectors." },
+      { id: 5, name: "UNDERCITY", pop: "22.4M", security: "28%", energy: "45%", influence: "38%", value: "€0.6T", resource: "BLACK MARKET", status: "HOSTILE", desc: "Sub-surface level beneath the sunline. Home to hacker syndicates, rogue AI, and unregistered citizens." },
+      { id: 6, name: "BLACKWATER", pop: "8.9M", security: "68%", energy: "72%", influence: "61%", value: "€0.9T", resource: "LOGISTICS", status: "CONTROLLED", desc: "Automated container ports and aquatic subterranean freight routes facilitating global trade." },
+      { id: 7, name: "SKYPORT", pop: "3.2M", security: "89%", energy: "81%", influence: "79%", value: "€1.5T", resource: "AEROSPACE", status: "CONTROLLED", desc: "High-altitude launchpads for atmospheric shuttles and orbital cargo freighters." },
+      { id: 8, name: "BIOZONE", pop: "2.2M", security: "85%", energy: "90%", influence: "70%", value: "€1.1T", resource: "BIOTECH", status: "CONTROLLED", desc: "Climate-controlled hydroponic domes and bio-genetic engineering laboratories." }
+    ];
+
+    /* Building Categories & Data */
+    const buildingCategories = ["ALL", "CORPORATE", "INDUSTRIAL", "RESEARCH", "SECURITY"];
+    const buildingsData = [
+      { id: 1, name: "NEXUS TOWER", category: "CORPORATE", baseCost: 240000000, energyCost: "-12%", income: 8400000, desc: "High-density executive office hub providing passive financial income and influence." },
+      { id: 2, name: "FUSION ARRAY 09", category: "INDUSTRIAL", baseCost: 180000000, energyCost: "+35%", income: 2100000, desc: "Thermal fusion plant supplying clean electrical grid power across adjacent sectors." },
+      { id: 3, name: "QUANTUM AI LAB", category: "RESEARCH", baseCost: 310000000, energyCost: "-18%", income: 4500000, desc: "Neural supercomputing laboratory accelerating research tech tree progression." },
+      { id: 4, name: "CYBER GRID HUB", category: "SECURITY", baseCost: 150000000, energyCost: "-8%", income: 1200000, desc: "Surveillance terminal suppressing district unrest and preventing rival espionage." },
+      { id: 5, name: "AUTOMATED FACTORY", category: "INDUSTRIAL", baseCost: 210000000, energyCost: "-15%", income: 6800000, desc: "Robotic assembly floor manufacturing cybernetic components and drones." }
+    ];
+
+    /* Tech Tree Data */
+    const techData = [
+      { id: 1, name: "QUANTUM AI CORE", branch: "AI", cost: 18400, desc: "Autonomous neural architecture capable of managing metropolitan infrastructure without human latency." },
+      { id: 2, name: "NEURAL LINK MK-IV", branch: "CYBERNETICS", cost: 24000, desc: "Direct brain-computer interfaces boosting worker efficiency and corporate loyalty." },
+      { id: 3, name: "PLASMA GRID RELAY", branch: "ENERGY", cost: 32000, desc: "Wireless energy transmission reducing power loss across distant city districts." },
+      { id: 4, name: "MAGLEV CORRIDOR", branch: "TRANSPORT", cost: 15000, desc: "High-speed subterranean transit lines facilitating rapid drone and specialist redeployment." },
+      { id: 5, name: "GENETIC RE-SYNTH", branch: "BIOTECH", cost: 28000, desc: "Advanced cellular rejuvenation protocols extending executive officer operational lifespan." },
+      { id: 6, name: "GRID SURVEILLANCE", branch: "SECURITY", cost: 21000, desc: "Omnipresent facial biometric scanning reducing district crime rates and riot threat." }
+    ];
+
+    /* Factions Data */
+    const factionsData = [
+      { id: 1, name: "NEXUS INDUSTRIES", focus: "AI / Robotics / Automation", color: "#00E5FF", quote: "“Efficiency is freedom.”", rel: 42, desc: "Dominant AI developer controlling automated factories and city maintenance synth-drones." },
+      { id: 2, name: "KOVARIS ENERGY", focus: "Energy / Fusion / Power", color: "#7A4DFF", quote: "“Whoever controls energy controls civilization.”", rel: 18, desc: "Monopolistic power supplier managing the city's thermonuclear grid and orbital solar harvesters." },
+      { id: 3, name: "VANTAGE SYSTEMS", focus: "Security / Surveillance / Defense", color: "#FF304F", quote: "“Order creates opportunity.”", rel: -11, desc: "Paramilitary private security corporation enforcing law in high-value corporate zones." },
+      { id: 4, name: "VOIDLINE", focus: "Black Market / Cybernetics / Intel", color: "#FF2BD6", quote: "“Everything has a price.”", rel: 63, desc: "Shadow syndicate operating in the Undercity, brokering illegal augmentations and classified intel." }
+    ];
+
+    /* Characters Data */
+    const charactersData = [
+      { id: 1, name: "MAYA VOSS", role: "Chief Strategist", faction: "NEXUS INDUSTRIES", loyalty: "88%", influence: "92", quote: "“Predicting corporate collapse is simple. You just follow the energy grid.”" },
+      { id: 2, name: "ADRIAN KANE", role: "Security Director", faction: "VANTAGE SYSTEMS", loyalty: "64%", influence: "85", quote: "“Peace isn't created by law. It's enforced by overwhelming firepower.”" },
+      { id: 3, name: "LEXA-9", role: "Synthetic Intelligence", faction: "NEXUS INDUSTRIES", loyalty: "99%", influence: "97", quote: "“Human decision-making displays a 42% inefficiency overhead. Allow me to assist.”" },
+      { id: 4, name: "DANTE ROOK", role: "Undercity Broker", faction: "VOIDLINE", loyalty: "41%", influence: "78", quote: "“The cloud towers shine bright, but the real power flows through the sewer data pipes.”" },
+      { id: 5, name: "ELIAS VALE", role: "Rival Executive", faction: "KOVARIS ENERGY", loyalty: "12%", influence: "90", quote: "“In 2189, market share isn't bought. It's conquered.”" }
+    ];
+
+    /* Intelligence Database Items */
+    const dbItems = [
+      { id: "DB-101", title: "CENTRAL CORE FINANCIAL PROTOCOLS", category: "DISTRICTS", tags: ["CORE", "FINANCE"], body: "Classified overview of high-frequency liquidity pools and corporate tax shelters in District 01." },
+      { id: "DB-102", title: "PROJECT OMEGA: SYNTHETIC AUTONOMY", category: "TECHNOLOGY", tags: ["AI", "SECRET"], body: "Unsanctioned neural network capable of self-replication and economic market manipulation." },
+      { id: "DB-103", title: "VOIDLINE SYNDICATE DOSSIER", category: "FACTIONS", tags: ["BLACK MARKET", "UNDERCITY"], body: "Comprehensive surveillance file detailing Voidline cyberware smuggling routes in Blackwater." },
+      { id: "DB-104", title: "MAYA VOSS PERSONNEL FILE", category: "PEOPLE", tags: ["EXECUTIVE", "NEXUS"], body: "Former military strategist turned Chief AI Operations Director for Nexus Industries." },
+      { id: "DB-105", title: "BLACKWATER DOCK RAID EVENT", category: "EVENTS", tags: ["LOGISTICS", "RAID"], body: "Report on rival corporate mercenary strike against automated shipping terminal 04." }
+    ];
+
+    /* Commodities Market Data */
+    const commoditiesData = [
+      { name: "ENERGY UNITS (MWh)", price: "€240.50", change: "+4.2%", trend: "up", chart: "M0,30 L20,25 L40,28 L60,15 L80,18 L100,5" },
+      { name: "QUANTUM DATA CORES", price: "€1,820.00", change: "+8.7%", trend: "up", chart: "M0,35 L20,30 L40,20 L60,18 L80,10 L100,2" },
+      { name: "RARE EARTH METALS", price: "€890.10", change: "-2.1%", trend: "down", chart: "M0,10 L20,15 L40,12 L60,25 L80,22 L100,35" },
+      { name: "SYNTHETIC BIO-TISSUE", price: "€640.00", change: "+1.5%", trend: "up", chart: "M0,25 L20,22 L40,20 L60,21 L80,15 L100,12" },
+      { name: "CYBERNETIC CHIPS", price: "€3,410.00", change: "-0.8%", trend: "down", chart: "M0,12 L20,15 L40,25 L60,20 L80,28 L100,30" },
+      { name: "PLASMA REAGENT", price: "€1,150.00", change: "+12.4%", trend: "up", chart: "M0,38 L20,32 L40,25 L60,15 L80,8 L100,0" }
+    ];
+
+    /* Gallery & News Data */
+    const galleryCategories = ["ALL", "CITY", "CHARACTERS", "GAMEPLAY"];
+    const galleryData = [
+      { id: 1, title: "METRO CORE SKYLINE", category: "CITY" },
+      { id: 2, title: "EXECUTIVE SUITE", category: "CHARACTERS" },
+      { id: 3, title: "CYBERNETIC ASSEMBLY", category: "GAMEPLAY" },
+      { id: 4, title: "UNDERCITY BAZAAR", category: "CITY" }
+    ];
+
+    const newsData = [
+      { title: "NEON DYNASTY ANNOUNCED", date: "2189.07.01", snippet: "The next generation of corporate city strategy games reaches pre-registration status." },
+      { title: "CENTRAL CORE REACHES 90% OCCUPANCY", date: "2189.06.28", snippet: "Executive residential towers report record high occupancy rates in District 01." },
+      { title: "VOIDLINE EXPANDS INTO BLACKWATER", date: "2189.06.15", snippet: "Logistics ports report heightened unauthorized network traffic." }
+    ];
+
+    /* Boot Sequence Runner */
+    const bootScreen = document.getElementById('boot-screen');
+    const bootProgress = document.getElementById('boot-progress');
+    const bootPercent = document.getElementById('boot-percent');
+    const bootLog = document.getElementById('boot-log');
+
+    const bootMessages = [
+      "INITIALIZING QUANTUM CORE...",
+      "ESTABLISHING SECURE NEURAL LINK...",
+      "SYNCING METROPOLITAN MAP DATA...",
+      "CHECKING CORPORATE DIPLOMATIC MATRIX...",
+      "ACCESS GRANTED // EXECUTIVE CLEARANCE: LEVEL 09"
+    ];
+
+    function runBootSequence() {
+      let progress = 0;
+      let msgIndex = 0;
+      
+      const interval = setInterval(() => {
+        progress += Math.floor(Math.random() * 15) + 12;
+        if (progress > 100) progress = 100;
+        
+        bootProgress.style.width = `${progress}%`;
+        bootPercent.innerText = `${progress.toString().padStart(2, '0')}%`;
+        
+        if (msgIndex < bootMessages.length && progress >= (msgIndex + 1) * 20) {
+          bootLog.innerHTML = `<span>${bootMessages[msgIndex]}</span>`;
+          msgIndex++;
+          audio.scan();
+        }
+
+        if (progress >= 100) {
+          clearInterval(interval);
+          setTimeout(() => {
+            bootScreen.style.opacity = '0';
+            bootScreen.style.transition = 'opacity 0.4s ease';
+            setTimeout(() => bootScreen.style.display = 'none', 400);
+          }, 300);
+        }
+      }, 100);
+    }
+
+    document.getElementById('skip-boot-btn').addEventListener('click', () => {
+      bootScreen.style.display = 'none';
+      audio.click();
+    });
+
+    /* Procedural Hero Megacity Canvas */
+    function initHeroCanvas() {
+      const canvas = document.getElementById('city-canvas');
+      const ctx = canvas.getContext('2d');
+      let width, height;
+
+      function resize() {
+        width = canvas.width = canvas.offsetWidth;
+        height = canvas.height = canvas.offsetHeight;
+      }
+      resize();
+      window.addEventListener('resize', resize);
+
+      const rain = Array.from({ length: 120 }, () => ({
+        x: Math.random() * width,
+        y: Math.random() * height,
+        speed: Math.random() * 12 + 8,
+        length: Math.random() * 20 + 10
+      }));
+
+      const vehicles = Array.from({ length: 15 }, () => ({
+        x: Math.random() * width,
+        y: Math.random() * (height * 0.6) + (height * 0.1),
+        speed: (Math.random() - 0.5) * 4 + 2,
+        color: Math.random() > 0.5 ? '#00E5FF' : '#FF2BD6'
+      }));
+
+      function draw() {
+        ctx.fillStyle = '#050609';
+        ctx.fillRect(0, 0, width, height);
+
+        const buildingWidth = 40;
+        const count = Math.ceil(width / buildingWidth);
+        
+        ctx.fillStyle = '#0a0d14';
+        for (let i = 0; i < count; i++) {
+          const h = (Math.sin(i * 999) * 0.5 + 0.5) * (height * 0.5) + (height * 0.2);
+          const x = i * buildingWidth;
+          const y = height - h;
+          ctx.fillRect(x, y, buildingWidth - 2, h);
+
+          ctx.fillStyle = (i % 3 === 0) ? 'rgba(0, 229, 255, 0.4)' : 'rgba(255, 43, 214, 0.2)';
+          for (let wy = y + 10; wy < height - 20; wy += 20) {
+            if (Math.sin(wy + i) > 0.3) {
+              ctx.fillRect(x + 8, wy, 6, 8);
+              ctx.fillRect(x + 22, wy, 6, 8);
+            }
+          }
+          ctx.fillStyle = '#0a0d14';
+        }
+
+        ctx.strokeStyle = 'rgba(0, 229, 255, 0.2)';
+        ctx.lineWidth = 1;
+        rain.forEach(p => {
+          ctx.beginPath();
+          ctx.moveTo(p.x, p.y);
+          ctx.lineTo(p.x - 2, p.y + p.length);
+          ctx.stroke();
+          p.y += p.speed;
+          if (p.y > height) { p.y = -20; p.x = Math.random() * width; }
+        });
+
+        vehicles.forEach(v => {
+          ctx.fillStyle = v.color;
+          ctx.shadowColor = v.color;
+          ctx.shadowBlur = 8;
+          ctx.fillRect(v.x, v.y, 12, 3);
+          ctx.shadowBlur = 0;
+          v.x += v.speed;
+          if (v.x > width) v.x = -20;
+          if (v.x < -20) v.x = width;
+        });
+
+        requestAnimationFrame(draw);
+      }
+      draw();
+    }
+
+    /* Parallax Mouse Shift */
+    document.addEventListener('mousemove', (e) => {
+      const heroContent = document.getElementById('hero-content');
+      if (!heroContent) return;
+      const x = (e.clientX - window.innerWidth / 2) / 60;
+      const y = (e.clientY - window.innerHeight / 2) / 60;
+      heroContent.style.transform = `translate3d(${x}px, ${y}px, 0)`;
+    });
+
+    /* Animated Statistics Counter */
+    function initAnimatedCounters() {
+      const observer = new IntersectionObserver((entries) => {
+        entries.forEach(entry => {
+          if (entry.isIntersecting) {
+            const counters = entry.target.querySelectorAll('.counter');
+            counters.forEach(c => {
+              const target = parseFloat(c.getAttribute('data-target'));
+              let current = 0;
+              const step = target / 40;
+              const timer = setInterval(() => {
+                current += step;
+                if (current >= target) {
+                  c.innerText = target % 1 === 0 ? target : target.toFixed(1);
+                  clearInterval(timer);
+                } else {
+                  c.innerText = current % 1 === 0 ? Math.floor(current) : current.toFixed(1);
+                }
+              }, 30);
+            });
+            observer.unobserve(entry.target);
+          }
+        });
+      }, { threshold: 0.3 });
+
+      const grid = document.getElementById('stats-counter-grid');
+      if (grid) observer.observe(grid);
+    }
+
+    /* Map District Selection */
+    function selectDistrict(id) {
+      state.selectedDistrict = id;
+      audio.click();
+
+      document.querySelectorAll('.district-poly').forEach(p => p.classList.remove('active'));
+      const activePoly = document.getElementById(`poly-${id}`);
+      if (activePoly) activePoly.classList.add('active');
+
+      renderDistrictPanel(id);
+    }
+
+    function renderDistrictPanel(id) {
+      const d = districtsData.find(item => item.id === id);
+      const panel = document.getElementById('district-panel');
+      if (!d || !panel) return;
+
+      panel.innerHTML = `
+        <div class="flex items-center justify-between border-b border-slate-800 pb-3">
+          <div>
+            <span class="text-[10px] font-tech text-cyanAccent uppercase tracking-widest">DISTRICT // 0${d.id}</span>
+            <h3 class="font-display font-black text-xl text-white">${d.name}</h3>
+          </div>
+          <span class="px-2 py-0.5 text-[10px] font-tech border ${d.status === 'CONTROLLED' ? 'border-emerald-500 text-emerald-400 bg-emerald-500/10' : 'border-rose-500 text-rose-400 bg-rose-500/10'}">
+            ${d.status}
+          </span>
+        </div>
+
+        <p class="text-xs text-slate-300 font-body leading-relaxed">${d.desc}</p>
+
+        <div class="grid grid-cols-2 gap-3 font-tech text-xs">
+          <div class="bg-graphite p-2.5 border border-slate-800">
+            <span class="text-slate-500 block">POPULATION</span>
+            <span class="text-white font-bold">${d.pop}</span>
+          </div>
+          <div class="bg-graphite p-2.5 border border-slate-800">
+            <span class="text-slate-500 block">ECONOMIC VALUE</span>
+            <span class="text-cyanAccent font-bold">${d.value}</span>
+          </div>
+          <div class="bg-graphite p-2.5 border border-slate-800">
+            <span class="text-slate-500 block">SECURITY LEVEL</span>
+            <span class="text-white font-bold">${d.security}</span>
+          </div>
+          <div class="bg-graphite p-2.5 border border-slate-800">
+            <span class="text-slate-500 block">PRIMARY RESOURCE</span>
+            <span class="text-magentaAccent font-bold">${d.resource}</span>
+          </div>
+        </div>
+
+        <button onclick="deployTacticalScan(${d.id})" class="w-full py-2.5 bg-graphite border border-cyanAccent/50 text-cyanAccent font-tech text-xs uppercase tracking-wider hover:bg-cyanAccent hover:text-black transition-all">
+          DEPLOY TACTICAL SCAN
+        </button>
+      `;
+    }
+
+    function deployTacticalScan(id) {
+      audio.scan();
+      alert(`TACTICAL SCAN INITIATED FOR DISTRICT 0${id}.\n\nGrid Security: Operational\nSub-level Network: Secure\nCorporate Influence: Active`);
+    }
+
+    /* Building Empire System */
+    function renderBuildingTabs() {
+      const container = document.getElementById('building-tabs');
+      container.innerHTML = buildingCategories.map(cat => `
+        <button onclick="filterBuildings('${cat}')" class="px-3 py-1.5 border border-slate-800 bg-graphite text-slate-400 hover:text-cyanAccent hover:border-cyanAccent transition-all uppercase">
+          ${cat}
+        </button>
+      `).join('');
+    }
+
+    function filterBuildings(category) {
+      audio.click();
+      renderBuildings(category);
+    }
+
+    function renderBuildings(category) {
+      const grid = document.getElementById('buildings-grid');
+      const filtered = category === 'ALL' ? buildingsData : buildingsData.filter(b => b.category === category);
+
+      grid.innerHTML = filtered.map(b => {
+        const userB = state.buildings[b.id] || { level: 1 };
+        const cost = Math.floor(b.baseCost * Math.pow(1.3, userB.level));
+
+        return `
+          <div class="bg-darkMetal border border-slate-800 p-6 hud-box space-y-4 hover:border-cyanAccent transition-all">
+            <div class="flex items-center justify-between border-b border-slate-800 pb-3">
+              <div>
+                <span class="text-[10px] font-tech text-slate-500 uppercase">${b.category}</span>
+                <h4 class="font-display font-bold text-lg text-white">${b.name}</h4>
+              </div>
+              <span class="px-2 py-0.5 bg-cyanAccent/10 text-cyanAccent font-tech text-xs border border-cyanAccent/30">
+                LEVEL 0${userB.level}
+              </span>
+            </div>
+
+            <p class="text-xs text-slate-300 font-body">${b.desc}</p>
+
+            <div class="grid grid-cols-2 gap-2 font-tech text-xs">
+              <div class="bg-graphite p-2 border border-slate-800">
+                <span class="text-slate-500 block">ENERGY</span>
+                <span class="text-yellow-400 font-bold">${b.energyCost}</span>
+              </div>
+              <div class="bg-graphite p-2 border border-slate-800">
+                <span class="text-slate-500 block">MONTHLY REVENUE</span>
+                <span class="text-emerald-400 font-bold">+€${(b.income / 1000000).toFixed(1)}M</span>
+              </div>
+            </div>
+
+            <div class="pt-2 flex items-center justify-between font-tech text-xs">
+              <span class="text-slate-400">UPGRADE: <span class="text-white font-mono">€${(cost / 1000000).toFixed(1)}M</span></span>
+              <button onclick="upgradeBuilding(${b.id})" class="px-4 py-2 bg-cyanAccent text-black font-bold uppercase hover:bg-white transition-all">
+                UPGRADE
+              </button>
+            </div>
+          </div>
+        `;
+      }).join('');
+    }
+
+    function upgradeBuilding(id) {
+      const b = buildingsData.find(item => item.id === id);
+      const userB = state.buildings[id] || { level: 1 };
+      const cost = Math.floor(b.baseCost * Math.pow(1.3, userB.level));
+
+      if (state.credits >= cost) {
+        state.credits -= cost;
+        state.buildings[id] = { level: userB.level + 1 };
+        audio.upgrade();
+        updateHUDMetrics();
+        renderBuildings('ALL');
+        alert(`SUCCESSFULLY UPGRADED ${b.name} TO LEVEL 0${userB.level + 1}!`);
+      } else {
+        audio.alarm();
+        alert(`INSUFFICIENT CREDITS! Required: €${(cost / 1000000).toFixed(1)}M`);
+      }
+    }
+
+    /* Technology Tree System */
+    function renderTechTree() {
+      const grid = document.getElementById('tech-grid');
+      grid.innerHTML = techData.map(t => {
+        const isUnlocked = state.researchedTechs.has(t.id);
+        return `
+          <div class="bg-darkMetal border ${isUnlocked ? 'border-cyanAccent' : 'border-slate-800'} p-6 hud-box space-y-4">
+            <div class="flex items-center justify-between border-b border-slate-800 pb-3">
+              <div>
+                <span class="text-[10px] font-tech text-slate-500 uppercase">${t.branch} BRANCH</span>
+                <h4 class="font-display font-bold text-base text-white">${t.name}</h4>
+              </div>
+              <span class="px-2 py-0.5 text-[10px] font-tech ${isUnlocked ? 'bg-cyanAccent text-black font-bold' : 'bg-slate-800 text-slate-400'}">
+                ${isUnlocked ? 'UNLOCKED' : 'LOCKED'}
+              </span>
+            </div>
+
+            <p class="text-xs text-slate-300 font-body leading-relaxed">${t.desc}</p>
+
+            <div class="flex items-center justify-between font-tech text-xs pt-2">
+              <span class="text-slate-400">RESEARCH COST: <span class="text-cyanAccent font-mono">${t.cost} RP</span></span>
+              ${!isUnlocked ? `
+                <button onclick="researchTech(${t.id})" class="px-3 py-1.5 bg-graphite border border-cyanAccent/50 text-cyanAccent uppercase hover:bg-cyanAccent hover:text-black transition-all">
+                  RESEARCH
+                </button>
+              ` : `
+                <span class="text-emerald-400 font-bold">ACTIVE PROTOCOL</span>
+              `}
+            </div>
+          </div>
+        `;
+      }).join('');
+    }
+
+    function researchTech(id) {
+      const t = techData.find(item => item.id === id);
+      state.researchedTechs.add(id);
+      audio.upgrade();
+      renderTechTree();
+      alert(`RESEARCH COMPLETED: ${t.name}\n\nProtocol activated across corporate mainframe.`);
+    }
+
+    /* Factions System */
+    function renderFactions() {
+      const container = document.getElementById('factions-container');
+      container.innerHTML = factionsData.map(f => `
+        <div class="bg-darkMetal border border-slate-800 p-6 hud-box space-y-4">
+          <div class="flex items-center justify-between border-b border-slate-800 pb-3">
+            <div>
+              <span class="text-[10px] font-tech text-slate-500 uppercase">${f.focus}</span>
+              <h4 class="font-display font-black text-xl text-white" style="color: ${f.color}">${f.name}</h4>
+            </div>
+            <span class="text-xs font-tech font-bold" style="color: ${f.color}">
+              RELATIONSHIP: ${f.rel > 0 ? '+' : ''}${f.rel}
+            </span>
+          </div>
+
+          <blockquote class="text-xs italic text-slate-400 border-l-2 pl-3" style="border-color: ${f.color}">
+            ${f.quote}
+          </blockquote>
+
+          <p class="text-xs text-slate-300 font-body">${f.desc}</p>
+
+          <div class="grid grid-cols-4 gap-2 pt-2 font-tech text-[10px]">
+            <button onclick="factionAction('${f.name}', 'NEGOTIATE')" class="py-2 bg-graphite border border-slate-800 hover:border-cyanAccent text-slate-300 uppercase">NEGOTIATE</button>
+            <button onclick="factionAction('${f.name}', 'TRADE')" class="py-2 bg-graphite border border-slate-800 hover:border-cyanAccent text-slate-300 uppercase">TRADE</button>
+            <button onclick="factionAction('${f.name}', 'ALLIANCE')" class="py-2 bg-graphite border border-slate-800 hover:border-cyanAccent text-slate-300 uppercase">ALLIANCE</button>
+            <button onclick="factionAction('${f.name}', 'ESPIONAGE')" class="py-2 bg-graphite border border-slate-800 hover:border-rose-500 text-rose-400 uppercase">ESPIONAGE</button>
+          </div>
+        </div>
+      `).join('');
+    }
+
+    function factionAction(factionName, action) {
+      audio.click();
+      const log = document.getElementById('faction-terminal-log');
+      const time = new Date().toLocaleTimeString();
+      
+      const p = document.createElement('p');
+      p.innerHTML = `<span class="text-slate-600">[${time}]</span> <span class="text-cyanAccent">${action}</span> directive transmitted to <span class="text-white font-bold">${factionName}</span>... Response pending.`;
+      log.prepend(p);
+    }
+
+    /* Characters System */
+    function renderCharacters() {
+      const grid = document.getElementById('character-grid');
+      grid.innerHTML = charactersData.map(c => `
+        <div class="bg-darkMetal border border-slate-800 p-4 hud-box space-y-3 hover:border-magentaAccent transition-all">
+          <div class="h-40 bg-graphite border border-slate-800 flex items-center justify-center relative overflow-hidden">
+            <i data-lucide="user-check" class="w-12 h-12 text-slate-600"></i>
+            <span class="absolute bottom-2 left-2 text-[10px] font-tech bg-black/80 px-2 py-0.5 text-magentaAccent">
+              ${c.role}
+            </span>
+          </div>
+
+          <div>
+            <h4 class="font-display font-bold text-sm text-white">${c.name}</h4>
+            <span class="text-[10px] font-tech text-slate-500 uppercase block">${c.faction}</span>
+          </div>
+
+          <blockquote class="text-[11px] italic text-slate-400 border-l border-magentaAccent pl-2">
+            ${c.quote}
+          </blockquote>
+
+          <div class="flex justify-between items-center text-[10px] font-tech text-slate-400 border-t border-slate-800/80 pt-2">
+            <span>LOYALTY: <span class="text-white font-bold">${c.loyalty}</span></span>
+            <span>INFLUENCE: <span class="text-cyanAccent font-bold">${c.influence}</span></span>
+          </div>
+        </div>
+      `).join('');
+      lucide.createIcons();
+    }
+
+    /* Database Search & Easter Egg System */
+    const dbCategories = ["ALL", "PEOPLE", "DISTRICTS", "FACTIONS", "TECHNOLOGY", "EVENTS"];
+
+    function renderDatabase(cat, filterText = '') {
+      const tabs = document.getElementById('db-tabs');
+      tabs.innerHTML = dbCategories.map(c => `
+        <button onclick="filterDatabase('${c}')" class="px-3 py-1.5 border border-slate-800 bg-graphite text-slate-400 hover:text-cyanAccent transition-all uppercase">
+          ${c}
+        </button>
+      `).join('');
+
+      const grid = document.getElementById('db-grid');
+      let items = cat === 'ALL' ? dbItems : dbItems.filter(i => i.category === cat);
+      
+      if (filterText) {
+        items = items.filter(i => 
+          i.title.toLowerCase().includes(filterText.toLowerCase()) || 
+          i.body.toLowerCase().includes(filterText.toLowerCase())
+        );
+      }
+
+      if (filterText.toUpperCase() === 'VOID') {
+        items.unshift({
+          id: "CLASSIFIED-99",
+          title: "SECRET FILE: EXECUTIVE OVERRIDE DETECTED",
+          category: "EVENTS",
+          tags: ["SECRET", "EASTER EGG"],
+          body: "CONFIDENTIAL PROTOCOL UNLOCKED. You have bypassed central security restrictions."
+        });
+      }
+
+      grid.innerHTML = items.map(i => `
+        <div class="bg-darkMetal border border-slate-800 p-5 hud-box space-y-3">
+          <div class="flex items-center justify-between border-b border-slate-800 pb-2 text-[10px] font-tech">
+            <span class="text-cyanAccent font-mono">${i.id}</span>
+            <span class="text-slate-500 uppercase">${i.category}</span>
+          </div>
+
+          <h4 class="font-display font-bold text-sm text-white">${i.title}</h4>
+          <p class="text-xs text-slate-300 font-body">${i.body}</p>
+
+          <div class="flex flex-wrap gap-1 pt-2">
+            ${i.tags.map(t => `<span class="px-2 py-0.5 bg-graphite text-[9px] font-tech text-slate-400 border border-slate-800">#${t}</span>`).join('')}
+          </div>
+        </div>
+      `).join('');
+    }
+
+    function filterDatabase(cat) {
+      audio.click();
+      renderDatabase(cat);
+    }
+
+    document.getElementById('db-search-input').addEventListener('input', (e) => {
+      renderDatabase('ALL', e.target.value);
+    });
+
+    /* City Event Feed */
+    const rawEvents = [
+      { time: "03:42", title: "POWER GRID FAILURE", area: "Industrial Belt", severity: "HIGH" },
+      { time: "04:08", title: "MARKET CRASH", area: "Neon Market", severity: "CRITICAL" },
+      { time: "05:21", title: "UNKNOWN AI SIGNAL", area: "Central Core", severity: "MEDIUM" },
+      { time: "06:14", title: "VOIDLINE ACTIVITY DETECTED", area: "Undercity", severity: "HIGH" }
+    ];
+
+    function renderEvents() {
+      const feed = document.getElementById('city-events-feed');
+      feed.innerHTML = rawEvents.map(e => `
+        <div class="bg-darkMetal p-3 border border-slate-800 flex items-center justify-between text-xs">
+          <div class="space-y-0.5">
+            <div class="flex items-center gap-2">
+              <span class="text-slate-500 font-mono">[2189.07.14 — ${e.time}]</span>
+              <span class="font-bold text-white">${e.title}</span>
+            </div>
+            <span class="text-[10px] text-slate-400">SECTOR: ${e.area}</span>
+          </div>
+          <span class="px-2 py-0.5 text-[10px] ${e.severity === 'CRITICAL' ? 'bg-rose-500/20 text-rose-400 border border-rose-500/40' : 'bg-yellow-500/20 text-yellow-400 border border-yellow-500/40'}">
+            ${e.severity}
+          </span>
+        </div>
+      `).join('');
+    }
+
+    /* Commodities Market */
+    function renderMarket() {
+      const grid = document.getElementById('market-grid');
+      grid.innerHTML = commoditiesData.map(c => `
+        <div class="bg-darkMetal border border-slate-800 p-5 hud-box space-y-3">
+          <div class="flex items-center justify-between border-b border-slate-800 pb-2">
+            <span class="text-xs font-tech text-slate-400 uppercase">${c.name}</span>
+            <span class="text-xs font-tech font-bold ${c.trend === 'up' ? 'text-emerald-400' : 'text-rose-400'}">${c.change}</span>
+          </div>
+
+          <div class="flex items-end justify-between">
+            <span class="font-display font-bold text-xl text-white">${c.price}</span>
+            
+            <svg class="w-24 h-8 text-cyanAccent stroke-current fill-none stroke-2">
+              <path d="${c.chart}" />
+            </svg>
+          </div>
+        </div>
+      `).join('');
+    }
+
+    /* Gallery & News Renderers */
+    function renderGallery(cat) {
+      const tabs = document.getElementById('gallery-tabs');
+      tabs.innerHTML = galleryCategories.map(c => `
+        <button onclick="renderGallery('${c}')" class="px-3 py-1 border border-slate-800 bg-graphite text-slate-400 hover:text-cyanAccent transition-all uppercase">
+          ${c}
+        </button>
+      `).join('');
+
+      const grid = document.getElementById('gallery-grid');
+      const items = cat === 'ALL' ? galleryData : galleryData.filter(g => g.category === cat);
+
+      grid.innerHTML = items.map(g => `
+        <div class="aspect-video bg-graphite border border-slate-800 p-2 flex flex-col justify-end relative overflow-hidden group hud-box">
+          <div class="absolute inset-0 bg-gradient-to-t from-black via-transparent to-transparent z-10"></div>
+          <span class="relative z-20 font-display font-bold text-xs text-white group-hover:text-cyanAccent transition-colors">${g.title}</span>
+          <span class="relative z-20 font-tech text-[9px] text-slate-500 uppercase">${g.category}</span>
+        </div>
+      `).join('');
+    }
+
+    function renderNews() {
+      const grid = document.getElementById('news-grid');
+      grid.innerHTML = newsData.map(n => `
+        <div class="bg-darkMetal border border-slate-800 p-5 hud-box space-y-2">
+          <span class="text-[10px] font-tech text-cyanAccent">${n.date}</span>
+          <h4 class="font-display font-bold text-sm text-white">${n.title}</h4>
+          <p class="text-xs text-slate-400 font-body">${n.snippet}</p>
+        </div>
+      `).join('');
+    }
+
+    /* Registration & Executive Profile Handler */
+    function handleRegistration(e) {
+      e.preventDefault();
+      const execId = 'ND-' + Math.floor(100000 + Math.random() * 900000);
+      
+      state.registered = true;
+      state.executiveId = execId;
+      
+      localStorage.setItem('nd_registered', 'true');
+      localStorage.setItem('nd_exec_id', execId);
+      localStorage.setItem('nd_exec_name', state.executiveName);
+
+      showProfilePanel();
+      audio.upgrade();
+    }
+
+    function showProfilePanel() {
+      document.getElementById('registration-container').classList.add('hidden');
+      const panel = document.getElementById('profile-panel');
+      panel.classList.remove('hidden');
+      document.getElementById('profile-id-display').innerText = state.executiveId;
+    }
+
+    function resetRegistration() {
+      localStorage.clear();
+      location.reload();
+    }
+
+    function updateProfileName(val) {
+      state.executiveName = val;
+      localStorage.setItem('nd_exec_name', val);
+    }
+
+    /* Live Resource HUD Ticker */
+    function updateHUDMetrics() {
+      document.getElementById('res-credits').innerText = `€ ${state.credits.toLocaleString()}`;
+    }
+
+    setInterval(() => {
+      state.credits += Math.floor(Math.random() * 500) + 200;
+      updateHUDMetrics();
+    }, 3000);
+
+    /* Trailer Modal */
+    const trailerModal = document.getElementById('trailer-modal');
+    document.getElementById('open-trailer-btn').addEventListener('click', () => {
+      trailerModal.classList.remove('hidden');
+      trailerModal.classList.add('flex');
+    });
+
+    function closeTrailer() {
+      trailerModal.classList.add('hidden');
+      trailerModal.classList.remove('flex');
+    }
+
+    /* Easter Egg 7 Logo Clicks */
+    let logoClicks = 0;
+    document.getElementById('brand-logo').addEventListener('click', () => {
+      logoClicks++;
+      audio.click();
+      if (logoClicks >= 7) {
+        logoClicks = 0;
+        alert("EXECUTIVE OVERRIDE DETECTED.\n\nWELCOME DIRECTOR. ACCESS LEVEL 10 GRANTED.");
+      }
+    });
+
+    /* Desktop Custom Cursor */
+    const cursor = document.getElementById('cursor');
+    if (cursor) {
+      document.addEventListener('mousemove', (e) => {
+        cursor.style.left = e.clientX + 'px';
+        cursor.style.top = e.clientY + 'px';
+      });
+
+      document.querySelectorAll('a, button, input, select, .district-poly').forEach(el => {
+        el.addEventListener('mouseenter', () => cursor.classList.add('hovered'));
+        el.addEventListener('mouseleave', () => cursor.classList.remove('hovered'));
+      });
+    }
+
+    /* Audio Toggle Handler */
+    document.getElementById('audio-toggle-btn').addEventListener('click', () => {
+      const active = audio.toggle();
+      const icon = document.getElementById('audio-icon');
+      if (active) {
+        icon.setAttribute('data-lucide', 'volume-2');
+      } else {
+        icon.setAttribute('data-lucide', 'volume-x');
+      }
+      lucide.createIcons();
+    });
+
+    /* App Initializer */
+    window.addEventListener('load', () => {
+      runBootSequence();
+      initHeroCanvas();
+      initAnimatedCounters();
+      renderDistrictPanel(state.selectedDistrict);
+      renderBuildingTabs();
+      renderBuildings('ALL');
+      renderTechTree();
+      renderFactions();
+      renderCharacters();
+      renderDatabase('ALL');
+      renderMarket();
+      renderEvents();
+      renderGallery('ALL');
+      renderNews();
+
+      if (state.registered) {
+        showProfilePanel();
+      }
+    });
+  </script>
+</body>
+</html>
